@@ -118,7 +118,7 @@ if UserAnswer1=='Y':
   for file_name in src_files:
     full_file_name = os.path.join(TrainOrigin, file_name)
 
-    if os.path.isfile(full_file_name) and ('IMAGES' in full_file_name==True):
+    if os.path.isfile(full_file_name) and (('IMAGES' in full_file_name)==True):
         print 'Copying file', full_file_name, 'from ',bcolors.OKBLUE+TrainOrigin+bcolors.ENDC,'into', bcolors.OKBLUE+EOSsubTrainDIR+bcolors.ENDC
         shutil.copy(full_file_name, EOSsubTrainDIR)
 
@@ -126,7 +126,7 @@ if UserAnswer1=='Y':
   src_files = os.listdir(ValOrigin)
   for file_name in src_files:
     full_file_name = os.path.join(ValOrigin, file_name)
-    if os.path.isfile(full_file_name) and ('IMAGES' in full_file_name==True):
+    if os.path.isfile(full_file_name) and (('IMAGES' in full_file_name)==True):
         print 'Copying file', full_file_name, 'from ',bcolors.OKBLUE+ValOrigin+bcolors.ENDC,'into', bcolors.OKBLUE+EOSsubValDIR+bcolors.ENDC
         shutil.copy(full_file_name, EOSsubValDIR)
 
