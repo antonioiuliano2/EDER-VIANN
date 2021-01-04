@@ -82,7 +82,7 @@ with open(flocation) as csv_read_file:
           for row in csv_read:
            if row[0]!='ID':
               if float(row[2])>=XminTest and float(row[2])<XmaxTest:
-                  if float(row[3])>=XminTest and float(row[3])<YmaxTest:
+                  if float(row[3])>=YminTest and float(row[3])<YmaxTest:
                       if (row[7] in used_events)==False:
                           used_events.append(row[7])
                           data_events.append(row[7])
@@ -130,7 +130,7 @@ with open(flocation) as csv_read_file:
           for row in csv_read:
            if row[0]!='ID':
               if float(row[2])>=XminVal and float(row[2])<XmaxVal:
-                  if float(row[3])>=XminVal and float(row[3])<YmaxVal:
+                  if float(row[3])>=YminVal and float(row[3])<YmaxVal:
                       if (row[7] in used_events)==False:
                           used_events.append(row[7])
                           val_events.append(row[7])
@@ -176,7 +176,7 @@ with open(flocation) as csv_read_file:
           for row in csv_read:
            if row[0]!='ID':
               if float(row[2])>=XminTrain and float(row[2])<XmaxTrain:
-                  if float(row[3])>=XminTrain and float(row[3])<YmaxTrain:
+                  if float(row[3])>=YminTrain and float(row[3])<YmaxTrain:
                       if (row[7] in used_events)==False:
                           used_events.append(row[7])
                           train_events.append(row[7])
