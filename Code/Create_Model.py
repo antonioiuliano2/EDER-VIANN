@@ -29,14 +29,13 @@ parser.add_argument('--ImageSet',help="Please enter the image set", default='1')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 ImageSet=args.ImageSet
-resolution=float(args.RES)
+resolution=float(args.Res)
 MaxX=10000.0
 MaxY=10000.0
-MaxZ=50000.0
+MaxZ=20000.0
 boundsX=int(round(MaxX/resolution,0))
 boundsY=int(round(MaxY/resolution,0))
 boundsZ=int(round(MaxZ/resolution,0))
-Schema=args.ClassSchema
 H=boundsX*2
 W=boundsY*2
 L=boundsZ
@@ -54,8 +53,8 @@ import sys
 sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF
 
-flocation=EOS_DIR+'/Data/TRAIN_SET/'+'CNN_TRAIN_IMAGES_'+ImageSet+'.csv'
-vlocation=EOS_DIR+'/Data/VALIDATION_SET/'+'CNN_VALIDATION_IMAGES_'+ImageSet+'.csv'
+flocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/'+'CNN_TRAIN_IMAGES_'+ImageSet+'.csv'
+vlocation=EOS_DIR+'/EDER-VIANN/Data/VALIDATION_SET/'+'CNN_VALIDATION_IMAGES_1.csv'
 
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################  Initialising EDER-VIANN image model creation module #########################"+bcolors.ENDC)
@@ -64,102 +63,59 @@ print(bcolors.HEADER+"#########################                 PhD Student at U
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 print(UF.TimeStamp(),'Loading data from ',bcolors.OKBLUE+flocation+bcolors.ENDC)
-
-exit()
-
-print('Enriching data')
-Images=LoadImages(flocation)
-ValImages=LoadData(vlocation)
-if FillFactor>0:
- print('Enriching data')
- additional_data=[]
- additional_data=EnrichPlot(resolution, Images)
- vadditional_data=EnrichPlot(resolution, valdata)
- print('Data is enriched')
-print('Changing resolution of the data')
-data=ChangeResoluion(resolution, data)
-valdata=ChangeResoluion(resolution, valdata)
-if FillFactor>0:
-  additional_data=ChangeResoluion(resolution, additional_data)
-print('Resolution has been changed')
-print('Creating data 3-d images...')
-TrainX=np.empty([len(data),H,W,L])
-TrainY=np.empty([len(data),1])
+TrainImages=UF.LoadImages(flocation)
+print(UF.TimeStamp(), bcolors.OKGREEN+"Train data has been loaded successfully..."+bcolors.ENDC)
+print(UF.TimeStamp(),'Loading data from ',bcolors.OKBLUE+vlocation+bcolors.ENDC)
+ValidationImages=UF.LoadImages(vlocation)
+print(UF.TimeStamp(), bcolors.OKGREEN+"Validation data has been loaded successfully..."+bcolors.ENDC)
 
 
+##########################################################   Data enrichment (Filling gaps between tracklets)   ##############################
+print(UF.TimeStamp(),'Enriching training data...')
+additional_train_data=[]
+for TI in TrainImages:
+  additional_train_data.append(UF.EnrichImage(resolution, TI))
+print(UF.TimeStamp(), bcolors.OKGREEN+"Train data has been enriched successfully..."+bcolors.ENDC)
 
-for DataItems in range(0,len(data)):
-    progress=int(round((float(DataItems)/float(len(data)))*100,0))
+print(UF.TimeStamp(),'Enriching validation data...')
+additional_val_data=[]
+for VI in ValidationImages:
+  additional_val_data.append(UF.EnrichImage(resolution, VI))
+print(UF.TimeStamp(), bcolors.OKGREEN+"Validation data has been enriched successfully..."+bcolors.ENDC)
+
+
+########################################################  Image preparation for rendering   ########################################
+print(UF.TimeStamp(),'Rendering train images...')
+TrainImagesY=np.empty([len(TrainImages),1])
+TrainImagesX=np.empty([len(TrainImages),H,W,L])
+for TI in range(0,len(TrainImages)):
+    TrainImages[TI]=UF.ChangeImageResoluion(resolution, TrainImages[TI])
+    additional_train_data[TI]=UF.ChangeImageResoluion(resolution, additional_train_data[TI])
+    progress=int(round((float(TI)/float(len(TrainImages)))*100,0))
     print("Progress is ",progress,' %', end="\r", flush=True)
-    InitialData=[]
-    Index=-1
-    if Schema=='B':
-      if data[DataItems][3]=='0':
-        TrainY[DataItems]=0
-      else:
-        TrainY[DataItems]=1
-    if Schema=='VMN':
-        TrainY[DataItems]=int(data[DataItems][3])
-    if Schema=='BVMN':
-        TrainY[DataItems]=int(2*float(data[DataItems][3]))
+    TrainImagesY[TI]=int(2*float(TrainImages[TI][3]))
+    BlankRenderedTrainImage=[]
     for x in range(-boundsX,boundsX):
-      for y in range(-boundsY,boundsY):
-          for z in range(0,boundsZ):
-            Index+=1
-            InitialData.append(0.1)
-            for Tracks in data[DataItems][4]:
-             for Hits in Tracks:
-                if (x == Hits[0]) and (y == Hits[1]) and (z == Hits[2]):
-                      InitialData[Index]=0.99
-            if FillFactor>0:
-             for Tracks in additional_data[DataItems][4]:
-              for Hits in Tracks:
-                if (x == Hits[0]) and (y == Hits[1]) and (z == Hits[2]):
-                      InitialData[Index]=0.99
-    Matrix = np.array(InitialData)
-    Matrix=np.reshape(Matrix,(H,W,L))
-    TrainX[DataItems]=Matrix
-TrainX= TrainX[..., np.newaxis]
-print(TrainY)
-TrainY=tf.keras.utils.to_categorical(TrainY)
+          for y in range(-boundsY,boundsY):
+            for z in range(0,boundsZ):
+             BlankRenderedTrainImage.append(0.1)
+    RenderedTrainImage = np.array(BlankRenderedTrainImage)
+    RenderedTrainImage = np.reshape(RenderedTrainImage,(H,W,L))
+    for Tracks in TrainImages[TI][4]:
+     for Hits in Tracks:
+         if abs(Hits[0])<boundsX and abs(Hits[1])<boundsX and abs(Hits[2])<boundsZ:
+             RenderedTrainImage[Hits[0]+boundsX][Hits[1]+boundsY][Hits[2]]=0.99
+    for Tracks in additional_train_data[TI][4]:
+     for Hits in Tracks:
+       if abs(Hits[0])<boundsX and abs(Hits[1])<boundsX and abs(Hits[2])<boundsZ:
+         RenderedTrainImage[Hits[0]+boundsX][Hits[1]+boundsY][Hits[2]]=0.99
+    TrainImagesX[TI]=RenderedTrainImage
+TrainImagesX= TrainImagesX[..., np.newaxis]
+TrainImagesY=tf.keras.utils.to_categorical(TrainImagesY)
+print(UF.TimeStamp(), bcolors.OKGREEN+"Train images have been rendered successfully..."+bcolors.ENDC)
 
-TestX=np.empty([len(valdata),H,W,L])
-TestY=np.empty([len(valdata),1])
-
-for DataItems in range(0,len(valdata)):
-    progress=int(round((float(DataItems)/float(len(valdata)))*100,0))
-    print("Progress is ",progress,' %', end="\r", flush=True)
-    InitialData=[]
-    Index=-1
-    if Schema=='B':
-      if valdata[DataItems][3]=='0':
-        TestY[DataItems]=0
-      else:
-        TestY[DataItems]=1
-    if Schema=='VMN':
-        TestY[DataItems]=int(valdata[DataItems][3])
-    if Schema=='BVMN':
-        TestY[DataItems]=int(2*float(valdata[DataItems][3]))
-    for x in range(-boundsX,boundsX):
-      for y in range(-boundsY,boundsY):
-          for z in range(0,boundsZ):
-            Index+=1
-            InitialData.append(0.1)
-            for Tracks in valdata[DataItems][4]:
-             for Hits in Tracks:
-                if (x == Hits[0]) and (y == Hits[1]) and (z == Hits[2]):
-                      InitialData[Index]=0.99
-            if FillFactor>0:
-             for Tracks in additional_data[DataItems][4]:
-              for Hits in Tracks:
-                if (x == Hits[0]) and (y == Hits[1]) and (z == Hits[2]):
-                      InitialData[Index]=0.99
-    Matrix = np.array(InitialData)
-    Matrix=np.reshape(Matrix,(H,W,L))
-    TestX[DataItems]=Matrix
-TestX= TestX[..., np.newaxis]
-ValY=copy.deepcopy(TestY)
-TestY=tf.keras.utils.to_categorical(TestY)
+print(UF.TimeStamp(),'Loading the model...')
+##### This but has to be converted to a part that interprets DNA code  ###################################
 model = Sequential()
 model.add(Conv3D(32, activation='relu',kernel_size=(3,3,3),kernel_initializer='he_uniform', input_shape=(H,W,L,1)))
 model.add(MaxPooling3D(pool_size=(2, 2, 2)))
@@ -172,20 +128,76 @@ model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(256, activation='relu', kernel_initializer='he_uniform'))
 model.add(Dense(256, activation='relu', kernel_initializer='he_uniform'))
-model.add(Dense(TrainY.shape[1], activation='softmax'))
+model.add(Dense(TrainImagesY.shape[1], activation='softmax'))
 # Compile the model
 model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
 model.summary()
+###################################################################################################
+
+print(UF.TimeStamp(),'Training the model...')
 # Fit data to model
-history = model.fit(TrainX, TrainY,batch_size=32,epochs=20,verbose=1)
-pred = model.predict(TestX)
+history = model.fit(TrainImagesX, TrainImagesY,batch_size=32,epochs=20,verbose=1)
+
+########################################################  Image preparation for rendering   ########################################
+print(UF.TimeStamp(),'Rendering validation images...')
+ValImagesY=[]
+ValImagesX=np.empty([len(ValidationImages),H,W,L])
+for VI in range(0,len(ValidationImages)):
+    ValidationImages[VI]=UF.ChangeImageResoluion(resolution, ValidationImages[VI])
+    additional_val_data[VI]=UF.ChangeImageResoluion(resolution, additional_val_data[VI])
+    progress=int(round((float(VI)/float(len(ValidationImages)))*100,0))
+    print("Progress is ",progress,' %', end="\r", flush=True)
+    ValImagesY.append(int(2*float(ValidationImages[VI][3])))
+    BlankRenderedValImage=[]
+    for x in range(-boundsX,boundsX):
+          for y in range(-boundsY,boundsY):
+            for z in range(0,boundsZ):
+             BlankRenderedValImage.append(0.1)
+    RenderedValImage = np.array(BlankRenderedValImage)
+    RenderedValImage = np.reshape(RenderedValImage,(H,W,L))
+    for Tracks in ValidationImages[VI][4]:
+     for Hits in Tracks:
+         if abs(Hits[0])<boundsX and abs(Hits[1])<boundsX and abs(Hits[2])<boundsZ:
+             RenderedValImage[Hits[0]+boundsX][Hits[1]+boundsY][Hits[2]]=0.99
+    for Tracks in additional_val_data[VI][4]:
+     for Hits in Tracks:
+       if abs(Hits[0])<boundsX and abs(Hits[1])<boundsX and abs(Hits[2])<boundsZ:
+         RenderedValImage[Hits[0]+boundsX][Hits[1]+boundsY][Hits[2]]=0.99
+    ValImagesX[VI]=RenderedValImage
+ValImagesX= ValImagesX[..., np.newaxis]
+print(UF.TimeStamp(), bcolors.OKGREEN+"Validation images have been rendered successfully..."+bcolors.ENDC)
+
+print(UF.TimeStamp(),'Validating the model...')
+pred = model.predict(ValImagesX)
 pred = np.argmax(pred, axis=1)
 match=0
 for p in range(0,len(pred)):
-      if int(ValY[p])==pred[p]:
+      if int(ValImagesY[p])==pred[p]:
             match+=1
 Accuracy=int(round((float(match)/float(len(pred)))*100,0))
-print('Accuracy of the model is',Accuracy,'%')
+print('Overall accuracy of the model is',Accuracy,'%')
+VertexLengths=[]
+for VR in ValImagesY:
+    if (VR in VertexLengths)==False:
+          VertexLengths.append(VR)
+print(ValImagesY)
+print(VertexLengths)
+print(pred)
+
+
+for VC in VertexLengths:
+   overall_match=0
+   hit_match=0
+   for VI in range(0,len(ValImagesY)):
+     if  int(ValImagesY[VI])==int(VC):
+         overall_match+=1
+         if int(ValImagesY[VI])==int(pred[VI]):
+            hit_match+=1
+   Accuracy=int(round((float(hit_match)/float(overall_match))*100,0))
+   print('------------------------------------------------------------------')
+   print('The accuracy of the model for',str(float(round((VC/2.0),1))),'-track vertices is',Accuracy,'%')
+
+
 exit()
 
 

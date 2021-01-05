@@ -34,14 +34,14 @@ resolution=float(args.Res)
 
 MaxX=10000.0
 MaxY=10000.0
-MaxZ=50000.0
+MaxZ=20000.0
 
 boundsX=int(round(MaxX/resolution,0))
 boundsY=int(round(MaxY/resolution,0))
 boundsZ=int(round(MaxZ/resolution,0))
-H=boundsX*2
-W=boundsY*2
-L=boundsZ
+H=(boundsX+1)*2
+W=(boundsY+1)*2
+L=boundsZ+1
 FillFactor=args.Fill
 
 #Loading Directory locations
