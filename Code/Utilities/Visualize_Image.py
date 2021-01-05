@@ -32,16 +32,20 @@ flocation=args.f
 SeedNo=int(args.Seed)
 resolution=float(args.Res)
 
-MaxX=10000.0
-MaxY=10000.0
-MaxZ=20000.0
+#MaxX=10000.0
+#MaxY=10000.0
+#MaxZ=20000.0
+
+MaxX=20000.0
+MaxY=20000.0
+MaxZ=50000.0
 
 boundsX=int(round(MaxX/resolution,0))
 boundsY=int(round(MaxY/resolution,0))
 boundsZ=int(round(MaxZ/resolution,0))
-H=(boundsX+1)*2
-W=(boundsY+1)*2
-L=boundsZ+1
+H=(boundsX)*2
+W=(boundsY)*2
+L=boundsZ
 FillFactor=args.Fill
 
 #Loading Directory locations
@@ -76,7 +80,7 @@ if FillFactor=='Y':
   additional_data=UF.EnrichImage(resolution, data)
 #  additional_data=UF.PhiRotateImage(additional_data)
   additional_data=UF.ChangeImageResoluion(resolution,additional_data)
-data=UF.PhiRotateImage(data)
+#data=UF.PhiRotateImage(data)
 data=UF.ChangeImageResoluion(resolution, data)
 if args.PlotType=='3D':
  X=[]
@@ -104,11 +108,13 @@ if args.PlotType=='XZ':
  Matrix=np.reshape(Matrix,(H,L))
  for Tracks in data[4]:
            for Hits in Tracks:
+                if abs(Hits[0])<boundsX and abs(Hits[2])<boundsZ:
                    Matrix[Hits[0]+boundsX][Hits[2]]=0.99
         #           Matrix[Hits[0]][Hits[2]]=0.99
  if FillFactor=='Y':
      for Tracks in additional_data[4]:
       for Hits in Tracks:
+        if abs(Hits[0])<boundsX and abs(Hits[2])<boundsZ:
           Matrix[Hits[0]+boundsX][Hits[2]]=0.99
          #  Matrix[Hits[0]][Hits[2]]=0.99
 if args.PlotType=='YZ':
@@ -122,11 +128,13 @@ if args.PlotType=='YZ':
  Matrix=np.reshape(Matrix,(W,L))
  for Tracks in data[4]:
          for Hits in Tracks:
+                 if abs(Hits[1])<boundsY and abs(Hits[2])<boundsZ:
                    Matrix[Hits[1]+boundsY][Hits[2]]=0.99
             #    Matrix[Hits[1]][Hits[2]]=0.99
  if FillFactor=='Y':
      for Tracks in additional_data[4]:
       for Hits in Tracks:
+         if abs(Hits[1])<boundsY and abs(Hits[2])<boundsZ:
           Matrix[Hits[1]+boundsY][Hits[2]]=0.99
         #  Matrix[Hits[1]][Hits[2]]=0.99
 if args.PlotType=='XY':
@@ -141,11 +149,13 @@ if args.PlotType=='XY':
  Matrix=np.reshape(Matrix,(H,W))
  for Tracks in data[4]:
      for Hits in Tracks:
+       if abs(Hits[0])<boundsX and abs(Hits[1])<boundsY:
          Matrix[Hits[0]+boundsX][Hits[1]+boundsY]=0.99
        #  Matrix[Hits[0]][Hits[1]]=0.99
  if FillFactor=='Y':
      for Tracks in additional_data[4]:
       for Hits in Tracks:
+         if abs(Hits[0])<boundsX and abs(Hits[1])<boundsY:
           Matrix[Hits[0]+boundsX][Hits[1]+boundsY]=0.99
          #  Matrix[Hits[0]][Hits[1]]=0.99
 import matplotlib as plt

@@ -24,15 +24,34 @@ class bcolors:
 
 parser = argparse.ArgumentParser(description='select cut parameters')
 parser.add_argument('--Res',help="Please enter the scaling resolution in microns", default='1000')
-parser.add_argument('--Mode',help="Please enter the mode: Production/Test/Evolution", default='Test')
+parser.add_argument('--Mode',help="Please enter the mode: Production/Test/Evolution/Train", default='Test')
 parser.add_argument('--ImageSet',help="Please enter the image set", default='1')
+parser.add_argument('--DNA',help="Please enter the model dna", default='[[2, 4, 1, 1, 2, 2, 6], [4, 4, 1, 1, 2, 2, 6], [], [], [], [4, 4], [4, 4],[],[],[], [7,2,1]]')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 ImageSet=args.ImageSet
 resolution=float(args.Res)
-MaxX=10000.0
-MaxY=10000.0
-MaxZ=20000.0
+Mode=args.Mode
+DNA=ast.literal_eval(args.DNA)
+HiddenLayerDNA=[]
+FullyConnectedDNA=[]
+OutputDNA=[]
+for gene in DNA:
+    if len(gene)==7:
+        HiddenLayerDNA.append(gene)
+    if len(gene)==2:
+        FullyConnectedDNA.append(gene)
+    if len(gene)==3:
+        OutputDNA.append(gene)
+act_fun_list=['N/A','linear','exponential','elu','relu', 'selu','sigmoid','softmax','softplus','softsign','tanh']
+def GiveBias(Code):
+    if Code==1:
+        return 'False'
+    if Code==2:
+        return 'True'
+MaxX=20000.0
+MaxY=20000.0
+MaxZ=50000.0
 boundsX=int(round(MaxX/resolution,0))
 boundsY=int(round(MaxY/resolution,0))
 boundsZ=int(round(MaxZ/resolution,0))
@@ -52,7 +71,12 @@ csv_reader.close()
 import sys
 sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF
-
+#Load data configuration
+EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+EOSsubDataDIR=EOSsubDIR+'/'+'Data'
+EOSsubModelDIR=EOSsubDIR+'/'+'Models'
+EOSsubEvoDIR=EOSsubDIR+'/'+'Evolution'
+EOSsubEvoModelDIR=EOSsubEvoDIR+'/'+'Models'
 flocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/'+'CNN_TRAIN_IMAGES_'+ImageSet+'.csv'
 vlocation=EOS_DIR+'/EDER-VIANN/Data/VALIDATION_SET/'+'CNN_VALIDATION_IMAGES_1.csv'
 
@@ -116,27 +140,37 @@ print(UF.TimeStamp(), bcolors.OKGREEN+"Train images have been rendered successfu
 
 print(UF.TimeStamp(),'Loading the model...')
 ##### This but has to be converted to a part that interprets DNA code  ###################################
-model = Sequential()
-model.add(Conv3D(32, activation='relu',kernel_size=(3,3,3),kernel_initializer='he_uniform', input_shape=(H,W,L,1)))
-model.add(MaxPooling3D(pool_size=(2, 2, 2)))
-model.add(BatchNormalization(center=True, scale=True))
-model.add(Dropout(0.5))
-model.add(Conv3D(64, activation='relu',kernel_size=(3,3,3),kernel_initializer='he_uniform'))
-model.add(MaxPooling3D(pool_size=(2, 2, 2)))
-model.add(BatchNormalization(center=True, scale=True))
-model.add(Dropout(0.5))
-model.add(Flatten())
-model.add(Dense(256, activation='relu', kernel_initializer='he_uniform'))
-model.add(Dense(256, activation='relu', kernel_initializer='he_uniform'))
-model.add(Dense(TrainImagesY.shape[1], activation='softmax'))
-# Compile the model
-model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+if Mode!='Train':
+  model = Sequential()
+  for HL in HiddenLayerDNA:
+    Nodes=HL[0]*16
+    KS=HL[2]+2
+    PS=HL[3]+1
+    DR=float(HL[6]-1)/10.0
+    if HiddenLayerDNA.index(HL)==0:
+      model.add(Conv3D(Nodes, activation=act_fun_list[HL[1]],kernel_size=(KS,KS,KS),kernel_initializer='he_uniform', input_shape=(H,W,L,1)))
+    else:
+      model.add(Conv3D(Nodes, activation=act_fun_list[HL[1]],kernel_size=(KS,KS,KS),kernel_initializer='he_uniform'))
+    model.add(MaxPooling3D(pool_size=(PS, PS, PS)))
+    model.add(BatchNormalization(center=GiveBias(HL[4]), scale=GiveBias(HL[5])))
+    model.add(Dropout(DR))
+  model.add(Flatten())
+  for FC in FullyConnectedDNA:
+    Nodes=4**FC[0]
+    model.add(Dense(Nodes, activation=act_fun_list[FC[1]], kernel_initializer='he_uniform'))
+  model.add(Dense(TrainImagesY.shape[1], activation=act_fun_list[OutputDNA[0][0]]))
+ # Compile the model
+  model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+
+######################### Model Creation section ########################################################################################
+if Mode=='Train':
+   model_name=EOSsubModelDIR+'/'+'model'
+   model=tf.keras.models.load_model(model_name)
 model.summary()
 ###################################################################################################
-
 print(UF.TimeStamp(),'Training the model...')
-# Fit data to model
-history = model.fit(TrainImagesX, TrainImagesY,batch_size=32,epochs=20,verbose=1)
+ # Fit data to model
+history = model.fit(TrainImagesX, TrainImagesY,batch_size=(OutputDNA[0][1]*16),epochs=(OutputDNA[0][2]*20),verbose=1)
 
 ########################################################  Image preparation for rendering   ########################################
 print(UF.TimeStamp(),'Rendering validation images...')
@@ -174,18 +208,39 @@ match=0
 for p in range(0,len(pred)):
       if int(ValImagesY[p])==pred[p]:
             match+=1
-Accuracy=int(round((float(match)/float(len(pred)))*100,0))
-print('Overall accuracy of the model is',Accuracy,'%')
-VertexLengths=[]
-for VR in ValImagesY:
+Accuracy=round((float(match)/float(len(pred)))*100,3)
+
+if Mode=='Production' or Mode=='Train':
+   model_name=EOSsubModelDIR+'/'+'model'
+   model.save(model_name)
+   record=[]
+   record.append(ImageSet)
+   record.append(len(TrainImagesY))
+   record.append(Accuracy)
+   csv_writer_err=open(EOSsubModelDIR+'/'+'model_log_'+ImageSet+'.csv',"w")
+   err_writer = csv.writer(csv_writer_err)
+   err_writer.writerow(record)
+   csv_writer_err.close()
+   print('The model has been saved here:', model_name)
+
+if Mode=='Evolution':
+   record=[]
+   csv_writer_err=open(EOSsubEvoModelDIR+'/'+'model_fitness_'+args.DNA+'.csv',"w")
+   err_writer = csv.writer(csv_writer_err)
+   if Accuracy!=Accuracy:
+       Accuracy=0.0
+   record.append(Accuracy)
+   err_writer.writerow(record)
+   csv_writer_err.close()
+   print('The model fitness file has been saved as ',EOSsubEvoModelDIR+'/'+'model_fitness_'+args.DNA+'.csv')
+
+if Mode=='Test':
+ print('Overall accuracy of the model is',Accuracy,'%')
+ VertexLengths=[]
+ for VR in ValImagesY:
     if (VR in VertexLengths)==False:
           VertexLengths.append(VR)
-print(ValImagesY)
-print(VertexLengths)
-print(pred)
-
-
-for VC in VertexLengths:
+ for VC in VertexLengths:
    overall_match=0
    hit_match=0
    for VI in range(0,len(ValImagesY)):
@@ -193,7 +248,7 @@ for VC in VertexLengths:
          overall_match+=1
          if int(ValImagesY[VI])==int(pred[VI]):
             hit_match+=1
-   Accuracy=int(round((float(hit_match)/float(overall_match))*100,0))
+   Accuracy=round((float(hit_match)/float(overall_match))*100,3)
    print('------------------------------------------------------------------')
    print('The accuracy of the model for',str(float(round((VC/2.0),1))),'-track vertices is',Accuracy,'%')
 
