@@ -123,7 +123,7 @@ if mode=='C':
    RemainingJobs=[]
    for j in PreviousJobs:
        if int(j[0])==CurrentSet:
-           if int(j[4])==1:
+           if int(j[4])==0:
                file_name=EOSsubModelDIR+'/model_log_'+j[0]+'.csv'
                try:
                 csv_reader=open(file_name,"r")
