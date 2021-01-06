@@ -2,6 +2,8 @@
 
 import csv
 import math
+import os, shutil
+import subprocess
 import time as t
 import datetime
 import ast
@@ -231,3 +233,224 @@ def DecorateSeedTracks(seed,data):
               Track_Hit.append(d[di])
             seed[4][track].append(Track_Hit)
     return seed
+
+def EvolutionCleanUp(AFS_DIR, EOS_DIR,mode):
+#      subprocess.call(['condor_rm', '-all'])
+      if mode=='Full':
+       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+       EOSsubEvoDIR=EOSsubDIR+'/'+'Evolution'
+       EOSsubEvoModelDIR=EOSsubEvoDIR+'/'+'Models'
+       folder =  EOSsubEvoDIR
+       for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+
+       folder =  EOSsubEvoModelDIR
+       for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/SH'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+
+def LogOperations(flocation,mode, message):
+    if mode=='UpdateLog':
+        csv_writer_log=open(flocation,"a")
+        log_writer = csv.writer(csv_writer_log)
+        for m in message:
+         log_writer.writerow(m)
+        csv_writer_log.close()
+    if mode=='StartLog':
+        csv_writer_log=open(flocation,"w")
+        log_writer = csv.writer(csv_writer_log)
+        for m in message:
+         log_writer.writerow(m)
+        csv_writer_log.close()
+def SubmitEvoJobsCondor(AFS_DIR,EOS_DIR,population):
+    for p in population:
+            SHName=AFS_DIR+'/HTCondor/SH/SH_'+str(p)+'.sh'
+            SUBName=AFS_DIR+'/HTCondor/SUB/SUB_'+str(p)+'.sub'
+            MSGName='MSG_'
+            OptionLine=' --Mode Evolution'
+            OptionLine+=(' --DNA "'+str(p[3])+'"')
+            OptionLine+=(' --afs '+AFS_DIR)
+            OptionLine+=(' --eos '+EOS_DIR)
+            MSGName+=str(p)
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            f.write("output ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".out")
+            f.write("\n")
+            f.write("error ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".err")
+            f.write("\n")
+            f.write("log ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".log")
+            f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+AFS_DIR+'/Code/Create_Model.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
+
+def TrainCleanUp(AFS_DIR, EOS_DIR,mode):
+    if mode=='Full':
+#      subprocess.call(['condor_rm', '-all'])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Models'
+      folder =  EOSsubModelDIR
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+
+      folder =  AFS_DIR+'/HTCondor/SH'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+    else:
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Models'
+      folder =  EOSsubModelDIR
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path) and 'error' in file_path:
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/SH'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      for the_file in os.listdir(folder):
+                file_path=os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    print(e)
+
+def SubmitTrainJobsCondor(AFS_DIR,EOS_DIR,job_list,mode):
+    for job in job_list:
+            SHName=AFS_DIR+'/HTCondor/SH/SH_'+str(job[0])+'.sh'
+            SUBName=AFS_DIR+'/HTCondor/SUB/SUB_'+str(job[0])+'.sub'
+            MSGName='MSG_'
+            if mode=='New':
+                OptionLine=' --Mode Production'
+            else:
+                OptionLine=' --Mode Train'
+            if job[2]!='-':
+               OptionLine+=(' --DNA "'+str(job[2])+'"')
+            OptionLine+=(" --ImageSet "+str(job[0]))
+            OptionLine+=(" --eos "+EOS_DIR)
+            OptionLine+=(" --afs "+AFS_DIR)
+            MSGName+=(str(job[0]))
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            f.write("output ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".out")
+            f.write("\n")
+            f.write("error ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".err")
+            f.write("\n")
+            f.write("log ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".log")
+            f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+AFS_DIR+'/Code/Create_Model.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
