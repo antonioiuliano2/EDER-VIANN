@@ -158,7 +158,7 @@ def LonRotateImage(seed):
 #seed is the image, boundX/Y/Z are the bounds on the position (Might be changed to the absolute distance)
 def SeedQualityCheck(seed,MaxOffset):
     for Track in seed[4]:
-            EuclidianOffset=math.sqrt(Track[0][0]**2+Track[0][1]**2+Track[0][2]**2)
+            EuclidianOffset=math.sqrt(float(Track[0][0])**2+float(Track[0][1])**2+float(Track[0][2])**2)
             if EuclidianOffset>MaxOffset:
                 return False
     return True
@@ -233,6 +233,33 @@ def DecorateSeedTracks(seed,data):
               Track_Hit.append(d[di])
             seed[4][track].append(Track_Hit)
     return seed
+
+#Given seed, this function assigns the track hit positions for the seed
+def EvaluateSeeds(Seeds,data):
+        for s in range(0,len(Seeds)):
+          progress=int(round((float(s)/float(len(Seeds)))*100,0))
+          print("Evaluating the quality of the seeds, progress is ",progress,' %', end="\r", flush=True)
+          TrackCount=0
+          for d in data:
+           if Seeds[s][0]==d[0]:
+               TrackCount+=1
+           if TrackCount>1:
+               Seeds[s].append('GT')
+               break
+          if TrackCount<2:
+              Seeds[s].append('BT')
+        return Seeds
+
+def RemoveBadTracks(Seeds,data):
+        NewData=[]
+        NewData.append(data[0])
+        for s in range(0,len(Seeds)):
+          progress=int(round((float(s)/float(len(Seeds)))*100,0))
+          print("Removing bad tracks from the data, progress is ",progress,' %', end="\r", flush=True)
+          for d in data:
+           if Seeds[s][0]==d[0]:
+              NewData.append(d)
+        return NewData
 
 def EvolutionCleanUp(AFS_DIR, EOS_DIR,mode):
 #      subprocess.call(['condor_rm', '-all'])
