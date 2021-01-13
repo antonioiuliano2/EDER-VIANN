@@ -73,6 +73,7 @@ if data==[]:
     print(UF.TimeStamp(), bcolors.FAIL+"Invalid Seed number"+bcolors.ENDC)
     exit()
 print(UF.TimeStamp(), bcolors.OKGREEN+"Data has been loaded successfully..."+bcolors.ENDC)
+print(UF.TimeStamp(), "The seed is:",data)
 if FillFactor=='Y':
   print(UF.TimeStamp(),'Enriching data')
 

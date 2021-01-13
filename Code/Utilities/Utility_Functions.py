@@ -14,14 +14,26 @@ def TimeStamp():
 
 #This utility loads an image data
 #It requires the location of the file where images are stored
-def LoadImages(location):
+def LoadImages(location,StartSeed,BatchSize):
+    csv_read_file=open(location,"r")
+    csv_read = csv.reader(csv_read_file, delimiter=',')
+    Images=list(csv_read)
+    csv_read_file.close()
+    Refined_Images=[]
+    for Im in Images:
+       Im[4]=ast.literal_eval(Im[4])
+       if int(Im[0])>=StartSeed and int(Im[0])<(StartSeed+BatchSize):
+           Refined_Images.append(Im)
+    return Refined_Images
+
+def GetNImages(location):
     csv_read_file=open(location,"r")
     csv_read = csv.reader(csv_read_file, delimiter=',')
     Images=list(csv_read)
     csv_read_file.close()
     for Im in Images:
        Im[4]=ast.literal_eval(Im[4])
-    return Images
+    return len(Images)
 
 def LoadImage(location,SeedNo):
     csv_read_file=open(location,"r")
@@ -78,13 +90,26 @@ def ChangeImageResoluion(resolution,Image):
         Hits[2]=int(round(float(Hits[2])/resolution,0))
     return Image
 
+def TruncateImage(Image):
+    #sort Mothers:
+    for Tracks in Image[4]:
+      for Hits in Tracks:
+        Hits[0]=int(float(Hits[0]))
+        Hits[1]=int(float(Hits[1]))
+        Hits[2]=int(float(Hits[2]))
+    return Image
+
 #This utility checks whether the seed track is already in the image
 def CheckSeedOverlap(Image,Seed):
     for Tracks in Image[1]:
         if Tracks==Seed[0]:
             return False
     return True
-
+def CheckTrackOverlap(Track,Tracks):
+    for t in Tracks:
+        if Track[0]==t[0]:
+            return True
+    return False
 #This utility sorts hits in the Image tracks by z-location
 def SortImage(seed):
    for Track in seed[4]:
@@ -163,6 +188,12 @@ def SeedQualityCheck(seed,MaxOffset):
                 return False
     return True
 
+def Pre2TrackSeedCheck(Track1,Track2,MaxOffset):
+    EuclidianOffset=math.sqrt((float(Track1[2])-float(Track2[2]))**2+(float(Track1[3])-float(Track2[3]))**2+(float(Track1[4])-float(Track2[4]))**2)
+    if EuclidianOffset>MaxOffset:
+       return False
+    return True
+
 #This utility rotates the seed in such a way that its second longest track is pointing in the Z-direction and has zero x
 def PhiRotateImage(seed):
     #Locate the longest track (assumption that it has the highest Pt)
@@ -235,29 +266,29 @@ def DecorateSeedTracks(seed,data):
     return seed
 
 #Given seed, this function assigns the track hit positions for the seed
-def EvaluateSeeds(Seeds,data):
-        for s in range(0,len(Seeds)):
-          progress=int(round((float(s)/float(len(Seeds)))*100,0))
-          print("Evaluating the quality of the seeds, progress is ",progress,' %', end="\r", flush=True)
+def EvaluateTracks(Tracks,data):
+        for s in range(0,len(Tracks)):
+          progress=int(round((float(s)/float(len(Tracks)))*100,0))
+          print("Evaluating the quality of the tracks, progress is ",progress,' %', end="\r", flush=True)
           TrackCount=0
           for d in data:
-           if Seeds[s][0]==d[0]:
+           if Tracks[s][0]==d[0]:
                TrackCount+=1
            if TrackCount>1:
-               Seeds[s].append('GT')
+               Tracks[s].append('GT')
                break
           if TrackCount<2:
-              Seeds[s].append('BT')
-        return Seeds
+              Tracks[s].append('BT')
+        return Tracks
 
-def RemoveBadTracks(Seeds,data):
+def RemoveBadTracks(Tracks,data):
         NewData=[]
         NewData.append(data[0])
-        for s in range(0,len(Seeds)):
-          progress=int(round((float(s)/float(len(Seeds)))*100,0))
+        for s in range(0,len(Tracks)):
+          progress=int(round((float(s)/float(len(Tracks)))*100,0))
           print("Removing bad tracks from the data, progress is ",progress,' %', end="\r", flush=True)
           for d in data:
-           if Seeds[s][0]==d[0]:
+           if Tracks[s][0]==d[0]:
               NewData.append(d)
         return NewData
 
@@ -462,6 +493,8 @@ def SubmitTrainJobsCondor(AFS_DIR,EOS_DIR,job_list,mode):
             f.write("log ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".log")
             f.write("\n")
             f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('request_gpus = 1')
             f.write("\n")
             f.write('transfer_output_files = ""')
             f.write("\n")

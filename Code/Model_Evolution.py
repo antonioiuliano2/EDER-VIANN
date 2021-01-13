@@ -36,7 +36,7 @@ selected=int(round(population_size*selection_fraction,0))
 CXPB=float(args.CXPB)
 MUTPB=float(args.MUTPB)
 SIGMA=float(args.SIGMA)
-dna_bound=[[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10],[10,10],[10,10],[10,10],[10,10],[10,10,10]] #Sets the maximium bound for the model dna code
+dna_bound=[[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,4,4,2,10],[10,10,10],[10,10,10],[10,10,10],[10,10,10],[10,10,10],[10,10,10,5]] #Sets the maximium bound for the model dna code
 #in case if mutation violates it
 _=0
 
@@ -108,6 +108,8 @@ def RawDNAInit():
     gene[10].append(randint(10)+1)
     #Epocs
     gene[10].append(randint(10)+1)
+    #Epocs
+    gene[10].append(randint(5)+1)
     return gene
 
 def InitialisePopulation(Size):

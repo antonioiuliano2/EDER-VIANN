@@ -61,7 +61,7 @@ print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..
 print(UF.TimeStamp(),'Loading data from ',bcolors.OKBLUE+flocation+bcolors.ENDC)
 csv_read_file=open(flocation,"r")
 csv_read = csv.reader(csv_read_file, delimiter=',')
-Seeds=[]
+Track_Headers=[]
 data=list(csv_read)
 csv_read_file.close()
 #Identify potential seeds
@@ -71,21 +71,23 @@ for d in range(1,len(data)):
         Track=[]
         Track.append(data[d][0])
         Track.append(data[d][1])
-        if (Track in Seeds)==False:
-            Seeds.append(Track)
-
-InitialSeeds=len(Seeds)
-print(UF.TimeStamp(),'Cleaning up seeds... ')
-Seeds=UF.EvaluateSeeds(Seeds,data)
-Seeds[:] = [x for x in Seeds if not x[2]=='BT']
-print(UF.TimeStamp(), bcolors.OKGREEN+str(InitialSeeds-len(Seeds)), "bad seeds that represent 1-point tracks have been removed..."+bcolors.ENDC)
+        Track.append(int(float(data[d][2])))
+        Track.append(int(float(data[d][3])))
+        Track.append(int(float(data[d][4])))
+        if (UF.CheckTrackOverlap(Track,Track_Headers))==False:
+            Track_Headers.append(Track)
+InitialTracks=len(Track_Headers)
+print(UF.TimeStamp(),'Cleaning up tracks... ')
+Track_Headers=UF.EvaluateTracks(Track_Headers,data)
+Track_Headers[:] = [x for x in Track_Headers if not x[5]=='BT']
+print(UF.TimeStamp(), bcolors.OKGREEN+str(InitialTracks-len(Track_Headers)), "bad tracks headers that represent 1-point tracks have been removed..."+bcolors.ENDC)
 InitialData=len(data)
-data=UF.RemoveBadTracks(Seeds,data)
+data=UF.RemoveBadTracks(Track_Headers,data)
 print(UF.TimeStamp(), bcolors.OKGREEN+str(InitialData-len(data)), "bad track hit records have been removed..."+bcolors.ENDC)
-for s in range(len(Seeds)):
-    Seeds[s]=(Seeds[s])[:2]
+for s in range(len(Track_Headers)):
+    Track_Headers[s]=(Track_Headers[s])[:5]
 print(UF.TimeStamp(),bcolors.OKGREEN+'Data has been successfully loaded and prepared..'+bcolors.ENDC)
-print(UF.TimeStamp(),bcolors.BOLD+str(len(Seeds))+bcolors.ENDC, 'tracks have been identified...')
+print(UF.TimeStamp(),bcolors.BOLD+str(len(Track_Headers))+bcolors.ENDC, 'tracks have been identified...')
 print(UF.TimeStamp(),'Creating 2-track seeds...')
 #create seeds
 Mothers=[]
@@ -99,7 +101,7 @@ def Ingest2TrackSeeds(Seeds,Fsamples,Tsamples,MaxOffset):
  for SdItr1 in range(0,len(Seeds)):
      for SdItr2 in range(0,len(Seeds)):
         if Seeds[SdItr1][0]!=Seeds[SdItr2][0]:
-         if ((Seeds[SdItr1][1]!=Seeds[SdItr2][1]) or (Seeds[SdItr1][1]=='P') or (Seeds[SdItr2][1]=='P')) and Fsamples>0:
+         if ((Seeds[SdItr1][1]!=Seeds[SdItr2][1]) or (Seeds[SdItr1][1]=='P') or (Seeds[SdItr2][1]=='P')) and Fsamples>0 and UF.Pre2TrackSeedCheck(Seeds[SdItr1],Seeds[SdItr2],MaxOffset):
              progress=int(round((float(InitialFsampleC-Fsamples)/float(InitialFsampleC))*100,0))
              print("Created",InitialFsampleC-Fsamples," fake 2-track seeds, progress is ",progress,' %', end="\r", flush=True)
              SampleCount+=1
@@ -117,8 +119,8 @@ def Ingest2TrackSeeds(Seeds,Fsamples,Tsamples,MaxOffset):
              UF.LonRotateImage(seed)
              UF.SortImage(seed)
              UF.ShiftImage(seed)
+             UF.PhiRotateImage(seed)
              if UF.SeedQualityCheck(seed,MaxOffset):
-              UF.PhiRotateImage(seed)
               Fsamples-=1
               Images.append(seed)
              else:
@@ -175,10 +177,10 @@ def IngestNTrackSeeds(Seeds,Images,Multiplicity,Fsamples,Tsamples,MaxOffset):
                             seed.append(str(VM-1)+'.5')
                             UF.DecorateSeedTracks(seed,data)
                             UF.SortImage(seed)
-                            UF.LonRotateImage(seed)
-                            UF.SortImage(seed)
-                            UF.ShiftImage(seed)
                             if UF.SeedQualityCheck(seed,MaxOffset):
+                             UF.LonRotateImage(seed)
+                             UF.SortImage(seed)
+                             UF.ShiftImage(seed)
                              UF.PhiRotateImage(seed)
                              Fsamples-=1
                              NewImages.append(seed)
@@ -213,14 +215,14 @@ def IngestNTrackSeeds(Seeds,Images,Multiplicity,Fsamples,Tsamples,MaxOffset):
    return NewImages
 GenuineImages=[]
 FakeImages=[]
-GenuineImages.append(Ingest2TrackSeeds(Seeds,0,Tsamples,Bound))
+GenuineImages.append(Ingest2TrackSeeds(Track_Headers,0,Tsamples,Bound))
 print(UF.TimeStamp(),bcolors.OKGREEN+str(len(GenuineImages[0])),'Two track genuine images have been created..'+bcolors.ENDC)
 if len(GenuineImages[0])<Tsamples:
     print(UF.TimeStamp(),bcolors.WARNING+'Warning, data contains',str(len(GenuineImages[0])),'Two-track genuine seeds, which is less than the required',str(Tsamples),'seeds...'+bcolors.ENDC)
     samples=int(round(len(GenuineImages[0])/quota))
     Tsamples=len(GenuineImages[0])
     Fsamples=min(samples-Tsamples,Fsamples)
-FakeImages.append(Ingest2TrackSeeds(Seeds,Fsamples,0,Bound))
+FakeImages.append(Ingest2TrackSeeds(Track_Headers,Fsamples,0,Bound))
 print(UF.TimeStamp(),bcolors.OKGREEN+str(len(FakeImages[0])),'Two track fake images have been created..'+bcolors.ENDC)
 #Creating seeds with higher track multiplicity
 if VxMult>=3:
@@ -272,6 +274,7 @@ for set in range(1,final_count):
      for Sd in range(int((set-1)*(float(totalsamples)/float(sets))),min(len(Batch),int(set*(float(totalsamples)/float(sets))))):
          Count+=1
          Batch[Sd][0]=Count
+         UF.TruncateImage(Batch[Sd])
          writer.writerow(Batch[Sd])
 csv_write.close()
 print(UF.TimeStamp(),bcolors.OKGREEN+'Training and validation images have been saved in the csv'+bcolors.ENDC)
