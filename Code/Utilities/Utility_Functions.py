@@ -293,7 +293,7 @@ def RemoveBadTracks(Tracks,data):
         return NewData
 
 def EvolutionCleanUp(AFS_DIR, EOS_DIR,mode):
-#      subprocess.call(['condor_rm', '-all'])
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-EVO\""])
       if mode=='Full':
        EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
        EOSsubEvoDIR=EOSsubDIR+'/'+'Evolution'
@@ -367,13 +367,17 @@ def SubmitEvoJobsCondor(AFS_DIR,EOS_DIR,population):
             f = open(SUBName, "w")
             f.write("executable = "+SHName)
             f.write("\n")
-            f.write("output ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".out")
-            f.write("\n")
-            f.write("error ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".err")
-            f.write("\n")
-            f.write("log ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".log")
-            f.write("\n")
+#            f.write("output ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".out")
+#            f.write("\n")
+#            f.write("error ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".err")
+#            f.write("\n")
+#            f.write("log ="+AFS_DIR+"/HTCondor/MSG/"+MSGName+".log")
+#            f.write("\n")
             f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('request_gpus = 1')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-EVO"')
             f.write("\n")
             f.write('transfer_output_files = ""')
             f.write("\n")
@@ -396,7 +400,7 @@ def SubmitEvoJobsCondor(AFS_DIR,EOS_DIR,population):
 
 def TrainCleanUp(AFS_DIR, EOS_DIR,mode):
     if mode=='Full':
-#      subprocess.call(['condor_rm', '-all'])
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-TRAIN\""])
       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
       EOSsubModelDIR=EOSsubDIR+'/'+'Models'
       folder =  EOSsubModelDIR
@@ -495,6 +499,8 @@ def SubmitTrainJobsCondor(AFS_DIR,EOS_DIR,job_list,mode):
             f.write('requirements = (CERNEnvironment =!= "qa")')
             f.write("\n")
             f.write('request_gpus = 1')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-TRAIN"')
             f.write("\n")
             f.write('transfer_output_files = ""')
             f.write("\n")

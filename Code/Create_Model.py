@@ -43,6 +43,8 @@ parser.add_argument('--ImageBatchSize',help="Please enter the user eos directory
 ########################################     Initialising Variables    #########################################
 args = parser.parse_args()
 ImageSet=args.ImageSet
+ImageNo=int(ImageSet)
+
 resolution=float(args.Res)
 Mode=args.Mode
 DNA=ast.literal_eval(args.DNA)
@@ -116,7 +118,7 @@ print(UF.TimeStamp(),'The set will be split in',bcolors.BOLD+str(NBatches)+bcolo
 #Starting the cycle
 for ib in range(0,NBatches):
     print(UF.TimeStamp(),'Working with the batch ',bcolors.BOLD+str(ib+1)+bcolors.ENDC)
-    StartBatch=(ib*ImageBatchSize)+1
+    StartBatch=(ib*ImageBatchSize)+1+((ImageNo-1)*NImages)
     TrainImages=UF.LoadImages(flocation,StartBatch,ImageBatchSize)
     print(UF.TimeStamp(), bcolors.OKGREEN+"Train data has been loaded successfully..."+bcolors.ENDC)
 
