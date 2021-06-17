@@ -92,7 +92,7 @@ FolderCreate(EOSsubTestDIR)
 print(bcolors.BOLD+'Copying the models...'+bcolors.ENDC)
 #Copying the pretrained models to the user directory
 ModelOrigin='/eos/experiment/ship/data/EDER-VIANN/Models/'
-src_files = os.listdir(TrainOrigin)
+src_files = os.listdir(ModelOrigin)
 for file_name in src_files:
     full_file_name = os.path.join(ModelOrigin, file_name)
     if os.path.isfile(full_file_name) and (('model' in full_file_name)==True):
