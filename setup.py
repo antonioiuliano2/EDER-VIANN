@@ -34,13 +34,26 @@ if UserChoice=='Y':
    dir_reader = csv.reader(csv_reader)
    for row in dir_reader:
      if row[0]=='EOS_DIR':
-       DEL_DIR=row[1]
-       DEL_DIR+='/'+'EDER-VIANN'
-       shutil.rmtree(DEL_DIR)
-       break
-   shutil.rmtree('HTCondor')
-   shutil.rmtree('Code')
-   os.remove('config')
+       try:
+        DEL_DIR=row[1]
+        DEL_DIR+='/'+'EDER-VIANN'
+        shutil.rmtree(DEL_DIR)
+        break
+       except:
+        print(bcolors.FAIL+'Problem removing '+bcolors.ENDC,bcolors.OKBLUE+DEL_DIR+bcolors.ENDC, bcolors.FAIL+'folder, skipping the step...'+bcolors.ENDC)
+   try:
+    shutil.rmtree('HTCondor')
+   except:
+     print(bcolors.FAIL+'Problem removing '+bcolors.ENDC,bcolors.OKBLUE+'HTCondor'+bcolors.ENDC, bcolors.FAIL+'folder, skipping the step...'+bcolors.ENDC)
+   try:
+    shutil.rmtree('Code')
+   except:
+     print(bcolors.FAIL+'Problem removing '+bcolors.ENDC,bcolors.OKBLUE+'Code'+bcolors.ENDC, bcolors.FAIL+'folder, skipping the step...'+bcolors.ENDC)
+   try:
+    os.remove('config')
+   except:
+     print(bcolors.FAIL+'Problem removing '+bcolors.ENDC,bcolors.OKBLUE+'Config'+bcolors.ENDC, bcolors.FAIL+'file, skipping the step...'+bcolors.ENDC)
+
    print(bcolors.OKGREEN+'Uninstallation complete, you can delete setup.py and its parent directory manually if you wish'+bcolors.ENDC)
    exit()
 
