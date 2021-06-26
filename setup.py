@@ -70,9 +70,10 @@ dir_writer.writerow(string_to_write)
 print(bcolors.OKGREEN+'Created the configuration file'+bcolors.ENDC)
 
 ########################################     Create directories for HTCondor    #########################################
-FolderCreate('Code/HTCondor')
-FolderCreate('Code/HTCondor/MSG')
-FolderCreate('Code/HTCondor/SH')
+FolderCreate('HTCondor')
+FolderCreate('HTCondor/MSG')
+FolderCreate('HTCondor/SH')
+FolderCreate('HTCondor/SUB')
 
 #########################################   Workout EOS directory #################################
 EOSDir=input(bcolors.BOLD+"Please enter the full path of your directory on EOS:\n"+bcolors.ENDC)

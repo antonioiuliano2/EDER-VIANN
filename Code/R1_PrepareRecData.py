@@ -13,7 +13,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='select the data preparation parameters')
 parser.add_argument('--f',help="Please enter the full path to the file with track reconstruction", default='/eos/user/a/aiuliano/public/sims_fedra/CH1_pot_03_02_20/b000001/b000001_withtracks.csv')
 parser.add_argument('--Track',help="Which tracks to use FEDRA/MC (For actual vertexing the track designations used by FEDRA should be used", default='FEDRA')
 parser.add_argument('--Xmin',help="This option restricts data to only those events that have tracks with hits x-coordinates that are above this value", default='0')
@@ -48,7 +48,7 @@ print(bcolors.HEADER+"####################  Initialising EDER-VIANN reconstructi
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################                 PhD Student at UCL                   #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
+print(UF.TimeStamp(), bcolors.OKGREEN+"Modules have been imported successfully..."+bcolors.ENDC)
 #fetching_test_data
 print(UF.TimeStamp(),'Loading raw data from',bcolors.OKBLUE+input_file_location+bcolors.ENDC)
 if Track=='FEDRA':
@@ -70,7 +70,7 @@ if Track=='FEDRA':
  data=data.drop([PM.FEDRA_Track_ID],axis=1)
  data=data.drop([PM.FEDRA_Track_QUADRANT],axis=1)
  if SliceData:
-     print(UF.TimeStamp(),'Slicing data...')
+     print(UF.TimeStamp(),'Slicing the data...')
      ValidEvents=data.drop(data.index[(data[PM.x] > Xmax) | (data[PM.x] < Xmin) | (data[PM.y] > Ymax) | (data[PM.y] < Ymin)])
      ValidEvents.drop([PM.x,PM.y,PM.z],axis=1,inplace=True)
      ValidEvents.drop_duplicates(subset="Track_ID",keep='first',inplace=True)
@@ -96,7 +96,7 @@ elif Track=='MC':
  data['Track_ID'] = data[PM.MC_Event_ID] + '-' + data[PM.MC_Track_ID]
  data=data.drop([PM.MC_Track_ID],axis=1)
  if SliceData:
-     print(UF.TimeStamp(),'Slicing data...')
+     print(UF.TimeStamp(),'Slicing the data...')
      ValidEvents=data.drop(data.index[(data[PM.x] > Xmax) | (data[PM.x] < Xmin) | (data[PM.y] > Ymax) | (data[PM.y] < Ymin)])
      ValidEvents.drop([PM.x,PM.y,PM.z,'Track_ID'],axis=1,inplace=True)
      ValidEvents.drop_duplicates(subset=PM.MC_Event_ID,keep='first',inplace=True)
@@ -106,7 +106,7 @@ elif Track=='MC':
  data=data.drop([PM.MC_Event_ID],axis=1)
 else:
   print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-  print(UF.TimeStamp(), bcolors.FAIL+"No valid option for track type has been chosen (FEDRA/MC), aborting the script..."+bcolors.ENDC)
+  print(UF.TimeStamp(), bcolors.FAIL+"No valid option for track reconstruction source has been chosen (FEDRA/MC), aborting the script..."+bcolors.ENDC)
   exit()
 print(UF.TimeStamp(),'Removing 1 hit tracks...')
 track_no_data=data.groupby(['Track_ID'],as_index=False).count()
@@ -118,7 +118,10 @@ new_combined_data = new_combined_data.drop(['Track_No'],axis=1)
 new_combined_data=new_combined_data.sort_values(['Track_ID',PM.x],ascending=[1,1])
 grand_final_rows=len(new_combined_data.axes[0])
 print(UF.TimeStamp(),'The cleaned data has ',grand_final_rows,' hits')
+new_combined_data=new_combined_data.rename(columns={PM.x: "x"})
+new_combined_data=new_combined_data.rename(columns={PM.y: "y"})
+new_combined_data=new_combined_data.rename(columns={PM.z: "z"})
 new_combined_data.to_csv(output_file_location,index=False)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(UF.TimeStamp(), bcolors.OKGREEN+"Test data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
+print(UF.TimeStamp(), bcolors.OKGREEN+"The traack data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
 exit()
