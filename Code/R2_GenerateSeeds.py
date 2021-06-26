@@ -1,15 +1,13 @@
 #This simple script prepares 2-Track seeds for the initial CNN vertexing
 # Part of EDER-VIANN package
 #Made by Filips Fedotovs
-#Current version 1.0
+
 
 ########################################    Import libraries    #############################################
 import csv
 import argparse
 import pandas as pd #We use Panda for a routine data processing
-#from pandas import DataFrame as df
 import math #We use it for data manipulation
-#import os, psutil #helps to monitor the memory
 import gc  #Helps to clear memory
 import numpy as np
 
@@ -50,14 +48,14 @@ sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF #This is where we keep routine utility functions
 import Parameters as PM #This is where we keep framework global parameters
 ########################################     Preset framework parameters    #########################################
-SI_1=PM.SI_1Func()
-SI_2=PM.SI_2Func()
-SI_3=PM.SI_3Func()
-SI_4=PM.SI_4Func()
-SI_5=PM.SI_5Func()
-SI_6=PM.SI_6Func()
-SI_7=PM.SI_7Func()  #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
-MaxTracksPerJob = PM.MaxTracksPerJobFunc()
+SI_1=PM.SI_1
+SI_2=PM.SI_2
+SI_3=PM.SI_3
+SI_4=PM.SI_4
+SI_5=PM.SI_5
+SI_6=PM.SI_6
+SI_7=PM.SI_7 #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
+MaxTracksPerJob = PM.MaxTracksPerJob
 
 #Specifying the full path to input/output files
 input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
@@ -75,6 +73,7 @@ data=pd.read_csv(input_file_location,header=0,usecols=['Track_ID','z'])
 
 
 print(UF.TimeStamp(),'Analysing data... ',bcolors.ENDC)
+
 data = data.groupby('Track_ID')['z'].min()  #Keeping only starting hits for the each track record (we do not require the full information about track in this script)
 data=data.reset_index()
 data = data.groupby('z')['Track_ID'].count()  #Keeping only starting hits for the each track record (we do not require the full information about track in this script)
@@ -92,7 +91,7 @@ if Mode=='R':
          print(UF.TimeStamp(),'OK, continuing then...')
 
    if UserAnswer=='Y':
-      print(UF.TimeStamp(),'Perfoming the cleanup... ',bcolors.ENDC)
+      print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
       UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
@@ -149,7 +148,8 @@ if Mode=='C':
               CompressionRatio=0
            print(UF.TimeStamp(),'Final set',str(Index), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
            result.to_csv(new_output_file_location,index=False)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"Seed creation is finished",Index,'Sets have been created'+bcolors.ENDC)
+       print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"Seed generation is completed",Index,'sets have been created'+bcolors.ENDC)
 #End of the script
 
 
