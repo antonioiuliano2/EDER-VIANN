@@ -93,7 +93,7 @@ def SubmitCreateSeedsJobsCondor(job):
             f.write('queue 1')
             f.write("\n")
             f.close()
-            TotalLine='python3 '+job[11]+'/Utilities/R2_GenerateSeeds_Sub.py '+OptionLine
+            TotalLine='python3 '+job[11]+'/Code/Utilities/R2_GenerateSeeds_Sub.py '+OptionLine
             f = open(SHName, "w")
             f.write("#!/bin/bash")
             f.write("\n")
