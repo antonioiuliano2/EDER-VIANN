@@ -25,8 +25,10 @@ class bcolors:
     UNDERLINE = '\033[4m'
 parser = argparse.ArgumentParser(description='select cut parameters')
 parser.add_argument('--Set',help="Set Number", default='1')
-parser.add_argument('--eos',help="EOS location", default='')
-parser.add_argument('--afs',help="AFS location", default='')
+parser.add_argument('--SubSet',help="SubSet Number", default='1')
+parser.add_argument('--Fraction',help="Fraction", default='1')
+parser.add_argument('--EOS',help="EOS location", default='')
+parser.add_argument('--AFS',help="AFS location", default='')
 parser.add_argument('--TV_int_1',help="The maximum distance between vertex reconstructed origin and the start hit of either tracks", default='1900')
 parser.add_argument('--TV_int_2',help="Second Interval", default='2500')
 parser.add_argument('--TV_int_3',help="Third Interval", default='3000')
@@ -41,7 +43,8 @@ parser.add_argument('--MaxZ',help="Image size in microns along the z-axis", defa
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 Set=args.Set
-
+SubSet=args.SubSet
+fraction=args.Fraction
 MaxDoca=float(args.MaxDoca)
 TV_int_1=float(args.TV_int_1)
 TV_int_2=float(args.TV_int_2)
@@ -61,12 +64,12 @@ boundsZ=int(round(MaxZ/resolution,0))
 H=boundsX*2
 W=boundsY*2
 L=boundsZ
-AFS_DIR=args.afs
-EOS_DIR=args.eos
+AFS_DIR=args.AFS
+EOS_DIR=args.EOS
 
 input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+Set+'.csv'
-output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+Set+'.csv'
+input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
 print(UF.TimeStamp(),'Loading the data')
 seeds=pd.read_csv(input_seed_file_location)
 seeds_1=seeds.drop(['Track_2'],axis=1)
@@ -90,7 +93,6 @@ del seed_list
 gc.collect()
 limit=len(seeds)
 seed_counter=0
-limit=200000
 print(UF.TimeStamp(),bcolors.OKGREEN+'Data has been successfully loaded and prepared..'+bcolors.ENDC)
 print(UF.TimeStamp(),'Loading the model...')
 #Load the model
