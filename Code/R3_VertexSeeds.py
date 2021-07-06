@@ -10,7 +10,7 @@ import pandas as pd #We use Panda for a routine data processing
 import math #We use it for data manipulation
 import gc  #Helps to clear memory
 import numpy as np
-
+import os
 
 
 class bcolors:   #We use it for the interface
@@ -48,29 +48,31 @@ sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF #This is where we keep routine utility functions
 import Parameters as PM #This is where we keep framework global parameters
 ########################################     Preset framework parameters    #########################################
-SI_1=PM.SI_1
-SI_2=PM.SI_2
-SI_3=PM.SI_3
-SI_4=PM.SI_4
-SI_5=PM.SI_5
-SI_6=PM.SI_6
-SI_7=PM.SI_7 #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
+TV_int_1=PM.TV_int_1
+TV_int_2=PM.TV_int_2
+TV_int_3=PM.TV_int_3
+TV_int_4=PM.TV_int_4
+TV_int_5=PM.TV_int_5
+MaxDoca=PM.MaxDoca
+resolution=PM.resolution
+acceptance=PM.acceptance
+MaxX=PM.MaxX
+MaxY=PM.MaxY
+MaxZ=PM.MaxZ
+ #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
 MaxTracksPerJob = PM.MaxTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
 input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
 #output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(bcolors.HEADER+"####################     Initialising EDER-VIANN Seed Creation module                ###################"+bcolors.ENDC)
+print(bcolors.HEADER+"######################     Initialising EDER-VIANN Vertexing module             ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################                 PhD Student at UCL                   #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 print(UF.TimeStamp(),'Loading preselected data from ',bcolors.OKBLUE+input_file_location+bcolors.ENDC)
 data=pd.read_csv(input_file_location,header=0,usecols=['Track_ID','z'])
-
-
-
 
 print(UF.TimeStamp(),'Analysing data... ',bcolors.ENDC)
 
@@ -92,26 +94,40 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateVertexCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-           job_details=[(j+1),(sj+1),data[j][0],SI_1,SI_2,SI_3,SI_4,SI_5,SI_6,SI_7,MaxTracksPerJob,AFS_DIR,EOS_DIR]
-           UF.SubmitCreateSeedsJobsCondor(job_details)
+            ContSub=True
+            f=0
+            while ContSub:
+             f+=1
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+             try:
+              csv_reader=open(new_output_file_location,"r")
+              csv_reader.close()
+              job_details=[(j+1),(sj+1),f,TV_int_1,TV_int_2,TV_int_3,TV_int_4,TV_int_5,MaxDoca,resolution,acceptance,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
+              UF.SubmitVertexSeedsJobsCondor(job_details)
+             except:
+              ContSub=False
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
    bad_pop=[]
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
-           job_details=[(j+1),(sj+1),data[j][0],SI_1,SI_2,SI_3,SI_4,SI_5,SI_6,SI_7,MaxTracksPerJob,AFS_DIR,EOS_DIR]
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
-           output_result_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'_RES.csv'
-           try:
-              csv_reader=open(output_result_location,"r")
-              csv_reader.close()
-           except:
-              bad_pop.append(job_details)
+           ContSub=True
+           f=0
+           while ContSub:
+             f+=1
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+             if os.path.isfile(new_output_file_location):
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              job_details=[(j+1),(sj+1),f,TV_int_1,TV_int_2,TV_int_3,TV_int_4,TV_int_5,MaxDoca,resolution,acceptance,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
+              if os.path.isfile(required_output_file_location)!=True:
+                 bad_pop.append(job_details)
+             else:
+              ContSub=False
    if len(bad_pop)>0:
      print(UF.TimeStamp(),bcolors.WARNING+'Warning, there are still', len(bad_pop), 'HTCondor jobs remaining'+bcolors.ENDC)
      print(bcolors.BOLD+'If you would like to wait and try again later please enter W'+bcolors.ENDC)
@@ -122,13 +138,14 @@ if Mode=='C':
          exit()
      if UserAnswer=='R':
         for bp in bad_pop:
-             UF.SubmitCreateSeedsJobsCondor(bp)
+             UF.SubmitVertexSeedsJobsCondor(bp)
         print(UF.TimeStamp(), bcolors.OKGREEN+"All jobs have been resubmitted"+bcolors.ENDC)
         print(bcolors.BOLD+"Please check them in few hours"+bcolors.ENDC)
         exit()
    else:
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Collating the results...')
+       exit()
        #for j in range(0,len(data)): //Temporarily measure to save space
        for j in range(0,5):
         for sj in range(0,int(data[j][2])):
@@ -148,7 +165,7 @@ if Mode=='C':
            print(UF.TimeStamp(),'Set',str(j+1),'and subset', str(sj+1), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
            fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
            for f in range(0,fractions):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
        UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)

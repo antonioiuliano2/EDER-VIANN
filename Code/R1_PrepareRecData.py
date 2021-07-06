@@ -80,7 +80,7 @@ if Track=='FEDRA':
 
 
 elif Track=='MC':
- data=pd.read_csv(flocation,
+ data=pd.read_csv(input_file_location,
             header=0,
             usecols=[PM.MC_Event_ID,PM.MC_Track_ID,PM.x, PM.y,PM.z])
  total_rows=len(data.axes[0])
@@ -123,5 +123,5 @@ new_combined_data=new_combined_data.rename(columns={PM.y: "y"})
 new_combined_data=new_combined_data.rename(columns={PM.z: "z"})
 new_combined_data.to_csv(output_file_location,index=False)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(UF.TimeStamp(), bcolors.OKGREEN+"The traack data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
+print(UF.TimeStamp(), bcolors.OKGREEN+"The track data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
 exit()
