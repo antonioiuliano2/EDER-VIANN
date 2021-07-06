@@ -216,7 +216,23 @@ def CreateVertexCleanUp(AFS_DIR, EOS_DIR):
       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/REC_SET'
       folder =  EOSsubModelDIR
+      CleanFolder(folder,'VX_CANDIDATE_SET_')
+      CleanFolder(folder,'VX_REC_RAW_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_VS_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_VS_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_VS_')
+
+def CreateFullVertexCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-VS\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/REC_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'VX_CANDIDATE_SET_')
       CleanFolder(folder,'VX_REC_SET_')
+      CleanFolder(folder,'VX_REC_RAW_SET_')
       folder =  AFS_DIR+'/HTCondor/SH'
       CleanFolder(folder,'SH_VS_')
       folder =  AFS_DIR+'/HTCondor/SUB'
