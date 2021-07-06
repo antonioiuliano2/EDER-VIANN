@@ -129,8 +129,8 @@ if Mode=='C':
    else:
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Collating the results...')
-       #for j in range(0,len(data)): //Temporarily measure to save space
-       for j in range(0,5):
+       for j in range(0,len(data)): #//Temporarily measure to save space
+       #for j in range(0,5):
         for sj in range(0,int(data[j][2])):
            output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
            result=pd.read_csv(output_file_location,names = ['Track_1','Track_2'])
