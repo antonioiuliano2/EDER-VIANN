@@ -94,7 +94,7 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateVertexCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateFullVertexCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
@@ -112,6 +112,12 @@ if Mode=='R':
               ContSub=False
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
+   print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
+   test_file=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_1.csv'
+   if os.path.isfile(test_file):
+       print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"The process has been completed before, if you want to restart, please rerun with '--Mode R' option"+bcolors.ENDC)
+       exit()
    bad_pop=[]
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
@@ -145,32 +151,45 @@ if Mode=='C':
    else:
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Collating the results...')
-       exit()
-       #for j in range(0,len(data)): //Temporarily measure to save space
-       for j in range(0,5):
+       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
-           result=pd.read_csv(output_file_location,names = ['Track_1','Track_2'])
-           Records=len(result.axes[0])
-           print(UF.TimeStamp(),'Set',str(j+1),'and subset', str(sj+1), 'contains', Records, 'seeds',bcolors.ENDC)
-           result["Seed_ID"]= ['-'.join(sorted(tup)) for tup in zip(result['Track_1'], result['Track_2'])]
-           result.drop_duplicates(subset="Seed_ID",keep='first',inplace=True)
-           result.drop(result.index[result['Track_1'] == result['Track_2']], inplace = True)
-           result.drop(["Seed_ID"],axis=1,inplace=True)
-           Records_After_Compression=len(result.axes[0])
-           if Records>0:
+           ContSub=True
+           f=0
+           while ContSub:
+             f+=1
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+             if os.path.isfile(new_output_file_location):
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              if os.path.isfile(required_output_file_location)!=True:
+                 print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
+              else:
+                 if (sj+1)==f==1:
+                    base_data=pd.read_csv(required_output_file_location,names=['Track_1','Track_2','VX_X','VX_Y','VX_Z','VX_FIT'])
+                 else:
+                    new_data=pd.read_csv(required_output_file_location,names=['Track_1','Track_2','VX_X','VX_Y','VX_Z','VX_FIT'])
+                    frames=[base_data,new_data]
+                    base_data=pd.concat(frames)
+                 print('Test',len(base_data.axes[0]))
+             else:
+              ContSub=False
+        Records=len(base_data.axes[0])
+        print(UF.TimeStamp(),'Set',str(j+1),'contains', Records, '2-track vertices',bcolors.ENDC)
+        output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_'+str(j+1)+'.csv'
+        base_data["Seed_ID"]= ['-'.join(sorted(tup)) for tup in zip(base_data['Track_1'], base_data['Track_2'])]
+        base_data.drop_duplicates(subset="Seed_ID",keep='first',inplace=True)
+        base_data.drop(base_data.index[base_data['Track_1'] == base_data['Track_2']], inplace = True)
+        base_data.drop(["Seed_ID"],axis=1,inplace=True)
+        Records_After_Compression=len(base_data.axes[0])
+        if Records>0:
               Compression_Ratio=int((Records_After_Compression/Records)*100)
-           else:
+        else:
               CompressionRatio=0
-           print(UF.TimeStamp(),'Set',str(j+1),'and subset', str(sj+1), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
-           fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
-           for f in range(0,fractions):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-             result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
+        print(UF.TimeStamp(),'Set',str(j+1),'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
+        base_data.to_csv(output_file_location,index=False)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
+       UF.CreateVertexCleanUp(AFS_DIR, EOS_DIR)
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"Seed generation is completed"+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"2-track vertexing is completed"+bcolors.ENDC)
 
 #End of the script
 
