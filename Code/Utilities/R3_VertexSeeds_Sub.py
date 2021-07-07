@@ -134,5 +134,4 @@ del seeds
 gc.collect()
 print(UF.TimeStamp(),'Saving the results..')
 UF.LogOperations(output_seed_file_location,'StartLog',GoodSeeds)
-
 exit()

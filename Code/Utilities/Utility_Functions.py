@@ -440,8 +440,8 @@ def GiveExpressSeedInfo(seed):
                 vector_2_end = np.array([np.polyval(XZ2,seed[1][0][len(seed[1][0])-1][2]),np.polyval(YZ2,seed[1][0][len(seed[1][0])-1][2]),seed[1][0][len(seed[1][0])-1][2]])
                 result=closestDistanceBetweenLines(vector_1_st,vector_1_end,vector_2_st,vector_2_end,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)
                 midpoint=(result[0]+result[1])/2
-                D1M=math.sqrt(((midpoint[0]-X1S)**2) + ((midpoint[0]-Y1S)**2) + ((midpoint[0]-Z1S)**2))
-                D2M=math.sqrt(((midpoint[0]-X2S)**2) + ((midpoint[0]-Y2S)**2) + ((midpoint[0]-Z2S)**2))
+                D1M=math.sqrt(((midpoint[0]-X1S)**2) + ((midpoint[1]-Y1S)**2) + ((midpoint[2]-Z1S)**2))
+                D2M=math.sqrt(((midpoint[0]-X2S)**2) + ((midpoint[1]-Y2S)**2) + ((midpoint[2]-Z2S)**2))
                 return (midpoint,result[2],D1M, D2M)
 
 def SeedQualityCheck(seed,MaxDoca,TV_int_1, TV_int_2, TV_int_3, TV_int_4, TV_int_5):
@@ -621,3 +621,11 @@ def LoadRenderImages(Images,resolution,MaxX,MaxY,MaxZ,StartSeed,EndSeed,Train):
     del Images_Copy
     del additional_data
     return (ImagesX,ImagesY)
+
+def CheckSeedsOverlap(seed1,seed2):
+    for t1 in seed1[0]:
+        for t2 in seed2[0]:
+            if t1==t2:
+                return True
+
+    return False
