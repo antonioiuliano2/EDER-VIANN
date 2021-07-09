@@ -154,7 +154,6 @@ if Mode=='C':
             fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
             for f in range(0,fractions):
              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-             new_output_file_location='/afs/cern.ch/work/f/ffedship/private/TEST/VX_FAKE_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
             os.unlink(output_file_location)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
