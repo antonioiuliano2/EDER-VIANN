@@ -11,11 +11,14 @@ import numpy as np
 #import scipy
 import copy
 #from scipy.stats import chisquare
-import tensorflow as tf
-from tensorflow import keras
+
 #This utility provides Timestamps for print messages
 def TimeStamp():
  return "["+datetime.datetime.now().strftime("%D")+' '+datetime.datetime.now().strftime("%H:%M:%S")+"]"
+def GiveEuclidianOffset(seed):
+    EuclidianOffset=math.sqrt(((float(seed[1][0][0][0])-float(seed[1][1][0][0]))**2)+((float(seed[1][0][0][1])-float(seed[1][1][0][1]))**2)+((float(seed[1][0][0][2])-float(seed[1][1][0][2]))**2))
+    return EuclidianOffset
+
 
 def CleanFolder(folder,key):
     if key=='':
@@ -112,12 +115,12 @@ def SubmitCreateSeedsJobsCondor(job):
             f = open(SUBName, "w")
             f.write("executable = "+SHName)
             f.write("\n")
-            f.write("output ="+job[11]+"/HTCondor/MSG/"+MSGName+".out")
-            f.write("\n")
-            f.write("error ="+job[11]+"/HTCondor/MSG/"+MSGName+".err")
-            f.write("\n")
-            f.write("log ="+job[11]+"/HTCondor/MSG/"+MSGName+".log")
-            f.write("\n")
+            #f.write("output ="+job[11]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[11]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[11]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
             f.write('requirements = (CERNEnvironment =!= "qa")')
             f.write("\n")
             f.write('+SoftUsed = "EDER-VIANN-CS"')
@@ -140,6 +143,95 @@ def SubmitCreateSeedsJobsCondor(job):
             f.close()
             subprocess.call(['condor_submit',SUBName])
             print(TotalLine," has been successfully submitted")
+
+def SubmitCreateFakeSeedsJobsCondor(job):
+            SHName=job[5]+'/HTCondor/SH/SH_FCS_'+str(job[0])+'_'+str(job[1])+'.sh'
+            SUBName=job[5]+'/HTCondor/SUB/SUB_FCS_'+str(job[0])+'_'+str(job[1])+'.sub'
+            MSGName='MSG_FCS_'
+            OptionLine=(' --Set '+str(job[0]))
+            OptionLine+=(" --Subset "+str(job[1]))
+            OptionLine+=(" --EOS "+str(job[6]))
+            OptionLine+=(" --AFS "+str(job[5]))
+            OptionLine+=(" --PlateZ "+str(job[2]))
+            OptionLine+=(" --MaxTracks "+str(job[4]))
+            OptionLine+=(" --SI_7 "+str(job[3]))
+            MSGName+=str(job[0])
+            MSGName+='_'
+            MSGName+=str(job[1])
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            #f.write("output ="+job[5]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[5]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[5]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-FCS"')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+job[5]+'/Code/Utilities/E5_GenerateFakeSeeds_Sub.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
+
+def SubmitCreateEvalSeedsJobsCondor(job):
+            SHName=job[2]+'/HTCondor/SH/SH_ECS_'+str(job[0])+'.sh'
+            SUBName=job[2]+'/HTCondor/SUB/SUB_ECS_'+str(job[0])+'.sub'
+            MSGName='MSG_ECS_'
+            OptionLine=(" --Subset "+str(job[0]))
+            OptionLine+=(" --EOS "+str(job[3]))
+            OptionLine+=(" --AFS "+str(job[2]))
+            OptionLine+=(" --MaxTracks "+str(job[1]))
+            MSGName+=str(job[0])
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            #f.write("output ="+job[2]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[2]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[2]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-ECS"')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+job[2]+'/Code/Utilities/E2_GenerateEvalSeeds_Sub.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
+
+
 
 def SubmitVertexSeedsJobsCondor(job):
             SHName=job[14]+'/HTCondor/SH/SH_VS_'+str(job[0])+'_'+str(job[1])+'_'+str(job[2])+'.sh'
@@ -169,12 +261,12 @@ def SubmitVertexSeedsJobsCondor(job):
             f = open(SUBName, "w")
             f.write("executable = "+SHName)
             f.write("\n")
-            f.write("output ="+job[14]+"/HTCondor/MSG/"+MSGName+".out")
-            f.write("\n")
-            f.write("error ="+job[14]+"/HTCondor/MSG/"+MSGName+".err")
-            f.write("\n")
-            f.write("log ="+job[14]+"/HTCondor/MSG/"+MSGName+".log")
-            f.write("\n")
+            #f.write("output ="+job[14]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[14]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[14]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
             f.write('requirements = (CERNEnvironment =!= "qa")')
             f.write("\n")
             f.write('+SoftUsed = "EDER-VIANN-VS"')
@@ -187,6 +279,49 @@ def SubmitVertexSeedsJobsCondor(job):
             f.write("\n")
             f.close()
             TotalLine='python3 '+job[14]+'/Code/Utilities/R3_VertexSeeds_Sub.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
+
+def SubmitDecorateSeedsJobsCondor(job):
+            SHName=job[2]+'/HTCondor/SH/SH_VS_'+str(job[0])+'_'+str(job[1])+'.sh'
+            SUBName=job[2]+'/HTCondor/SUB/SUB_VS_'+str(job[0])+'_'+str(job[1])+'.sub'
+            MSGName='MSG_DC_'
+            OptionLine=(' --SubSet '+str(job[0]))
+            OptionLine+=(" --Fraction "+str(job[1]))
+            OptionLine+=(" --EOS "+str(job[3]))
+            OptionLine+=(" --AFS "+str(job[2]))
+            MSGName+=str(job[0])
+            MSGName+='_'
+            MSGName+=str(job[1])
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            #f.write("output ="+job[2]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[2]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[2]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-DC"')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+job[2]+'/Code/Utilities/E3_DecorateEvalSeeds_Sub.py '+OptionLine
             f = open(SHName, "w")
             f.write("#!/bin/bash")
             f.write("\n")
@@ -211,12 +346,37 @@ def CreateSeedsCleanUp(AFS_DIR, EOS_DIR):
       folder =  AFS_DIR+'/HTCondor/MSG'
       CleanFolder(folder,'MSG_CS_')
 
+def CreateEvalSeedsCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-ECS\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'EVAL_SEED_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_ECS_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_ECS_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_ECS_')
+
+def CreateFakeSeedsCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-FCS\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'FAKE_SEED_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_FCS_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_FCS_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_FCS_')
+
 def CreateVertexCleanUp(AFS_DIR, EOS_DIR):
       subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-VS\""])
       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/REC_SET'
       folder =  EOSsubModelDIR
-      CleanFolder(folder,'VX_CANDIDATE_SET_')
       CleanFolder(folder,'VX_REC_RAW_SET_')
       folder =  AFS_DIR+'/HTCondor/SH'
       CleanFolder(folder,'SH_VS_')
@@ -224,6 +384,33 @@ def CreateVertexCleanUp(AFS_DIR, EOS_DIR):
       CleanFolder(folder,'SUB_VS_')
       folder =  AFS_DIR+'/HTCondor/MSG'
       CleanFolder(folder,'MSG_VS_')
+
+def CreateFullDecorateCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-DC\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'VX_EVAL_RAW_SET_')
+      CleanFolder(folder,'VX_EVAL_CANDIDATE_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_DC_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_DC_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_DC_')
+
+def CreateDecorateCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-DC\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'VX_EVAL_RAW_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_DC_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_DC_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_DC_')
 
 def CreateFullVertexCleanUp(AFS_DIR, EOS_DIR):
       subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-VS\""])
@@ -277,6 +464,17 @@ def angle_between(v1, v2):
     det = v1_u[0]*v2_u[1] - v1_u[1]*v2_u[0]      # determinant
     return np.arctan2(det, dot)
 
+def GiveSeedOpenAngle(seed):
+                X1=float(seed[1][0][len(seed[1][0])-1][0])
+                Z1=float(seed[1][0][len(seed[1][0])-1][2])
+                X2=float(seed[1][1][len(seed[1][1])-1][0])
+                Z2=float(seed[1][1][len(seed[1][1])-1][2])
+                vector_1 = [X1, Z1]
+                vector_2 = [X2, Z2]
+                PhiAngle = angle_between(vector_1,vector_2)
+                if np.isnan(PhiAngle)==True:
+                    PhiAngle=0.0
+                return PhiAngle
 #This utility shifts hit coordinates so they all start at z,x,y=0
 def PreShiftImage(seed):
      LongestDistance=0.0
@@ -307,13 +505,6 @@ def GetEquationOfTrack(Track):
         Zval.append(Hits[2])
       XZ=np.polyfit(Zval,Xval,1)
       YZ=np.polyfit(Zval,Yval,1)
-      observed=[]
-      expected=[]
-      for dp in range(len(Track)):
-         observed.append((Xval[dp]-np.polyval(XZ,Zval[dp]))**2)
-         observed.append((Yval[dp]-np.polyval(YZ,Zval[dp]))**2)
-         expected.append(0)
-         expected.append(0)
       return (XZ,YZ, 'N/A',Xval[0],Yval[0],Zval[0])
 
 def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False):
@@ -421,6 +612,31 @@ def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1
 
 
     return pA,pB,np.linalg.norm(pA-pB)
+
+def GiveFullSeedInfo(seed):
+               # #Get equation of track motion in ZX plane
+                XZ1=GetEquationOfTrack(seed[1][0])[0]
+                XZ2=GetEquationOfTrack(seed[1][1])[0]
+                YZ1=GetEquationOfTrack(seed[1][0])[1]
+                YZ2=GetEquationOfTrack(seed[1][1])[1]
+                X1S=GetEquationOfTrack(seed[1][0])[3]
+                X2S=GetEquationOfTrack(seed[1][1])[3]
+                Y1S=GetEquationOfTrack(seed[1][0])[4]
+                Y2S=GetEquationOfTrack(seed[1][1])[4]
+                Z1S=GetEquationOfTrack(seed[1][0])[5]
+                Z2S=GetEquationOfTrack(seed[1][1])[5]
+                vector_1_st = np.array([np.polyval(XZ1,seed[1][0][0][2]),np.polyval(YZ1,seed[1][0][0][2]),seed[1][0][0][2]])
+                vector_1_end = np.array([np.polyval(XZ1,seed[1][0][len(seed[1][0])-1][2]),np.polyval(YZ1,seed[1][0][len(seed[1][0])-1][2]),seed[1][0][len(seed[1][0])-1][2]])
+                vector_2_st = np.array([np.polyval(XZ2,seed[1][0][0][2]),np.polyval(YZ2,seed[1][0][0][2]),seed[1][0][0][2]])
+                vector_2_end = np.array([np.polyval(XZ2,seed[1][0][len(seed[1][0])-1][2]),np.polyval(YZ2,seed[1][0][len(seed[1][0])-1][2]),seed[1][0][len(seed[1][0])-1][2]])
+                result=closestDistanceBetweenLines(vector_1_st,vector_1_end,vector_2_st,vector_2_end,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)
+                midpoint=(result[0]+result[1])/2
+                D1M=math.sqrt(((midpoint[0]-X1S)**2) + ((midpoint[1]-Y1S)**2) + ((midpoint[2]-Z1S)**2))
+                D2M=math.sqrt(((midpoint[0]-X2S)**2) + ((midpoint[1]-Y2S)**2) + ((midpoint[2]-Z2S)**2))
+                EO=GiveEuclidianOffset(seed)
+                PA=GiveSeedOpenAngle(seed)
+                return (midpoint,result[2],D1M, D2M,EO,PA)
+
 
 def GiveExpressSeedInfo(seed):
                # #Get equation of track motion in ZX plane
@@ -581,6 +797,8 @@ def ChangeImageResoluion(resolution,Image):
     return Image
 
 def LoadRenderImages(Images,resolution,MaxX,MaxY,MaxZ,StartSeed,EndSeed,Train):
+    import tensorflow as tf
+    from tensorflow import keras
     boundsX=int(round(MaxX/resolution,0))
     boundsY=int(round(MaxY/resolution,0))
     boundsZ=int(round(MaxZ/resolution,0))
