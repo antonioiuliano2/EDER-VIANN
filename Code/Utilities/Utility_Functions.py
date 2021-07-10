@@ -231,7 +231,51 @@ def SubmitCreateEvalSeedsJobsCondor(job):
             subprocess.call(['condor_submit',SUBName])
             print(TotalLine," has been successfully submitted")
 
-
+def SubmitDecorateFakeSeedsJobsCondor(job):
+            SHName=job[3]+'/HTCondor/SH/SH_FDS_'+str(job[0])+'_'+str(job[1])+'_'+str(job[2])+'.sh'
+            SUBName=job[3]+'/HTCondor/SUB/SUB_FDS_'+str(job[0])+'_'+str(job[1])+'_'+str(job[2])+'.sub'
+            #MSGName='MSG_FDS_'
+            OptionLine=(' --Set '+str(job[0]))
+            OptionLine+=(" --SubSet "+str(job[1]))
+            OptionLine+=(" --Fraction "+str(job[2]))
+            OptionLine+=(" --EOS "+str(job[4]))
+            OptionLine+=(" --AFS "+str(job[3]))
+            #MSGName+=str(job[0])
+            #MSGName+='_'
+            #MSGName+=str(job[1])
+            #MSGName+='_'
+            #MSGName+=str(job[2])
+            f = open(SUBName, "w")
+            f.write("executable = "+SHName)
+            f.write("\n")
+            #f.write("output ="+job[3]+"/HTCondor/MSG/"+MSGName+".out")
+            #f.write("\n")
+            #f.write("error ="+job[3]+"/HTCondor/MSG/"+MSGName+".err")
+            #f.write("\n")
+            #f.write("log ="+job[3]+"/HTCondor/MSG/"+MSGName+".log")
+            #f.write("\n")
+            f.write('requirements = (CERNEnvironment =!= "qa")')
+            f.write("\n")
+            f.write('+SoftUsed = "EDER-VIANN-FDS"')
+            f.write("\n")
+            f.write('transfer_output_files = ""')
+            f.write("\n")
+            f.write('+JobFlavour = "workday"')
+            f.write("\n")
+            f.write('queue 1')
+            f.write("\n")
+            f.close()
+            TotalLine='python3 '+job[3]+'/Code/Utilities/E6_DecorateFakeSeeds_Sub.py '+OptionLine
+            f = open(SHName, "w")
+            f.write("#!/bin/bash")
+            f.write("\n")
+            f.write("set -ux")
+            f.write("\n")
+            f.write(TotalLine)
+            f.write("\n")
+            f.close()
+            subprocess.call(['condor_submit',SUBName])
+            print(TotalLine," has been successfully submitted")
 
 def SubmitVertexSeedsJobsCondor(job):
             SHName=job[14]+'/HTCondor/SH/SH_VS_'+str(job[0])+'_'+str(job[1])+'_'+str(job[2])+'.sh'
@@ -360,7 +404,20 @@ def CreateEvalSeedsCleanUp(AFS_DIR, EOS_DIR):
       CleanFolder(folder,'MSG_ECS_')
 
 def CreateFakeSeedsCleanUp(AFS_DIR, EOS_DIR):
-      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-FCS\""])
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-FDS\""])
+      EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
+      EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
+      folder =  EOSsubModelDIR
+      CleanFolder(folder,'VX_FAKE_RAW_SET_')
+      folder =  AFS_DIR+'/HTCondor/SH'
+      CleanFolder(folder,'SH_FDS_')
+      folder =  AFS_DIR+'/HTCondor/SUB'
+      CleanFolder(folder,'SUB_FDS_')
+      folder =  AFS_DIR+'/HTCondor/MSG'
+      CleanFolder(folder,'MSG_FDS_')
+
+def CreateFakeDecSeedsCleanUp(AFS_DIR, EOS_DIR):
+      subprocess.call(['condor_rm', '-constraint', "SoftUsed == \"EDER-VIANN-FDS\""])
       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
       folder =  EOSsubModelDIR
@@ -378,6 +435,7 @@ def CreateVertexCleanUp(AFS_DIR, EOS_DIR):
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/REC_SET'
       folder =  EOSsubModelDIR
       CleanFolder(folder,'VX_REC_RAW_SET_')
+      CleanFolder(folder,'VX_CANDIDATE_SET_')
       folder =  AFS_DIR+'/HTCondor/SH'
       CleanFolder(folder,'SH_VS_')
       folder =  AFS_DIR+'/HTCondor/SUB'
@@ -405,6 +463,7 @@ def CreateDecorateCleanUp(AFS_DIR, EOS_DIR):
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/TEST_SET'
       folder =  EOSsubModelDIR
       CleanFolder(folder,'VX_EVAL_RAW_SET_')
+      CleanFolder(folder,'VX_EVAL_DEC_SET')
       folder =  AFS_DIR+'/HTCondor/SH'
       CleanFolder(folder,'SH_DC_')
       folder =  AFS_DIR+'/HTCondor/SUB'
@@ -417,7 +476,6 @@ def CreateFullVertexCleanUp(AFS_DIR, EOS_DIR):
       EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
       EOSsubModelDIR=EOSsubDIR+'/'+'Data/REC_SET'
       folder =  EOSsubModelDIR
-      CleanFolder(folder,'VX_CANDIDATE_SET_')
       CleanFolder(folder,'VX_REC_SET_')
       CleanFolder(folder,'VX_REC_RAW_SET_')
       folder =  AFS_DIR+'/HTCondor/SH'
