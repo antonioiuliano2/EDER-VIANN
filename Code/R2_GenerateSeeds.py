@@ -68,12 +68,7 @@ print(bcolors.HEADER+"##########################################################
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 print(UF.TimeStamp(),'Loading preselected data from ',bcolors.OKBLUE+input_file_location+bcolors.ENDC)
 data=pd.read_csv(input_file_location,header=0,usecols=['Track_ID','z'])
-
-
-
-
 print(UF.TimeStamp(),'Analysing data... ',bcolors.ENDC)
-
 data = data.groupby('Track_ID')['z'].min()  #Keeping only starting hits for the each track record (we do not require the full information about track in this script)
 data=data.reset_index()
 data = data.groupby('z')['Track_ID'].count()  #Keeping only starting hits for the each track record (we do not require the full information about track in this script)
@@ -93,6 +88,8 @@ if Mode=='R':
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
       UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateFullVertexCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateVertexCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
@@ -107,10 +104,7 @@ if Mode=='C':
            job_details=[(j+1),(sj+1),data[j][0],SI_1,SI_2,SI_3,SI_4,SI_5,SI_6,SI_7,MaxTracksPerJob,AFS_DIR,EOS_DIR]
            output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
            output_result_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'_RES.csv'
-           try:
-              csv_reader=open(output_result_location,"r")
-              csv_reader.close()
-           except:
+           if os.path.isfile(output_result_location)==False:
               bad_pop.append(job_details)
    if len(bad_pop)>0:
      print(UF.TimeStamp(),bcolors.WARNING+'Warning, there are still', len(bad_pop), 'HTCondor jobs remaining'+bcolors.ENDC)
@@ -130,7 +124,6 @@ if Mode=='C':
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Collating the results...')
        for j in range(0,len(data)): #//Temporarily measure to save space
-       #for j in range(0,5):
         for sj in range(0,int(data[j][2])):
            output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
            result=pd.read_csv(output_file_location,names = ['Track_1','Track_2'])
@@ -150,6 +143,7 @@ if Mode=='C':
            for f in range(0,fractions):
              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
+           os.unlink(output_file_location)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
        UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)

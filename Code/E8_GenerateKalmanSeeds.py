@@ -13,6 +13,7 @@ import numpy as np
 import os
 
 
+
 class bcolors:   #We use it for the interface
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -30,10 +31,6 @@ parser.add_argument('--Mode',help="Running Mode: Reset(R)/Continue(C)", default=
 ######################################## Set variables  #############################################################
 args = parser.parse_args()
 Mode=args.Mode
-
-
-
-
 #Loading Directory locations
 csv_reader=open('../config',"r")
 config = list(csv.reader(csv_reader))
@@ -47,26 +44,24 @@ import sys
 sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF #This is where we keep routine utility functions
 import Parameters as PM #This is where we keep framework global parameters
-
- #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
-MaxEvalTracksPerJob = PM.MaxEvalTracksPerJob
+########################################
+# Preset framework parameters    #########################################
+MaxTracksPerJob = PM.MaxEvalTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
-#output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SET.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(bcolors.HEADER+"######################     Initialising EDER-VIANN Vertexing module             ########################"+bcolors.ENDC)
+print(bcolors.HEADER+"####################     Initialising EDER-VIANN Fedra Evaluation Seed Creation module    ##############"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################                 PhD Student at UCL                   #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 print(UF.TimeStamp(),'Loading preselected data from ',bcolors.OKBLUE+input_file_location+bcolors.ENDC)
 data=pd.read_csv(input_file_location,header=0,usecols=['Track_ID'])
-
 print(UF.TimeStamp(),'Analysing data... ',bcolors.ENDC)
 data.drop_duplicates(subset="Track_ID",keep='first',inplace=True)  #Keeping only starting hits for the each track record (we do not require the full information about track in this script)
 Records=len(data.axes[0])
-SubSets=math.ceil(Records/MaxEvalTracksPerJob)
+SubSets=np.ceil(Records/MaxTracksPerJob)
 if Mode=='R':
    print(UF.TimeStamp(),bcolors.WARNING+'Warning! You are running the script with the "Mode R" option which means that you want to create the seeds from the scratch'+bcolors.ENDC)
    print(UF.TimeStamp(),bcolors.WARNING+'This option will erase all the previous Seed Creation jobs/results'+bcolors.ENDC)
@@ -77,32 +72,23 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateDecorateCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateKalmanSeedsCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateDecorateKalmanCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateFullDecorateKalmanCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for sj in range(0,int(SubSets)):
-            for f in range(0,10000):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-             if os.path.isfile(new_output_file_location):
-               job_details=[(sj+1),f,AFS_DIR,EOS_DIR]
-               UF.SubmitDecorateSeedsJobsCondor(job_details)
+           job_details=[(sj+1),MaxTracksPerJob,AFS_DIR,EOS_DIR]
+           UF.SubmitCreateKalmanSeedsJobsCondor(job_details)
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
-   print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
-   test_file=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_DEC_SET.csv'
-   if os.path.isfile(test_file):
-       print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"The process has been completed before, if you want to restart, please rerun with '--Mode R' option"+bcolors.ENDC)
-       exit()
    bad_pop=[]
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
-
    for sj in range(0,int(SubSets)):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_RAW_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-              job_details=[(sj+1),f,AFS_DIR,EOS_DIR]
-              if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
-                 bad_pop.append(job_details)
+           job_details=[(sj+1),MaxTracksPerJob,AFS_DIR,EOS_DIR]
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SEED_SET_'+str(sj+1)+'.csv'
+           output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SEED_SET_'+str(sj+1)+'_RES.csv'
+           if os.path.isfile(output_result_location)==False:
+              bad_pop.append(job_details)
    if len(bad_pop)>0:
      print(UF.TimeStamp(),bcolors.WARNING+'Warning, there are still', len(bad_pop), 'HTCondor jobs remaining'+bcolors.ENDC)
      print(bcolors.BOLD+'If you would like to wait and try again later please enter W'+bcolors.ENDC)
@@ -113,45 +99,37 @@ if Mode=='C':
          exit()
      if UserAnswer=='R':
         for bp in bad_pop:
-             UF.SubmitDecorateSeedsJobsCondor(bp)
+             UF.SubmitCreateKalmanSeedsJobsCondor(bp)
         print(UF.TimeStamp(), bcolors.OKGREEN+"All jobs have been resubmitted"+bcolors.ENDC)
         print(bcolors.BOLD+"Please check them in few hours"+bcolors.ENDC)
         exit()
    else:
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
+       print(UF.TimeStamp(),'Collating the results...')
        for sj in range(0,int(SubSets)):
-           for f in range(0,10000):
-             progress=int(round((float(sj)/float(int(SubSets)))*100,0))
-             print("Collating the results, progress is ",progress,' %', end="\r", flush=True)
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-             required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_RAW_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-             if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
-                 print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
-             elif os.path.isfile(required_output_file_location):
-                 if (sj+1)==(f+1)==1:
-                    base_data=pd.read_csv(required_output_file_location,names=['Track_1','Track_2','VX_X','VX_Y','VX_Z','Doca','Track 1 Distance to Vertex','Track 2 Distance to Vertex','Distance between Tracks','Vertex Opening Angle'])
-                 else:
-                    new_data=pd.read_csv(required_output_file_location,names=['Track_1','Track_2','VX_X','VX_Y','VX_Z','Doca','Track 1 Distance to Vertex','Track 2 Distance to Vertex','Distance between Tracks','Vertex Opening Angle'])
-                    frames=[base_data,new_data]
-                    base_data=pd.concat(frames)
-       Records=len(base_data.axes[0])
-       print(UF.TimeStamp(),'Set contains', Records, '2-track vertices',bcolors.ENDC)
-       output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_DEC_SET.csv'
-       base_data["Seed_ID"]= ['-'.join(sorted(tup)) for tup in zip(base_data['Track_1'], base_data['Track_2'])]
-       base_data.drop_duplicates(subset="Seed_ID",keep='first',inplace=True)
-       base_data.drop(base_data.index[base_data['Track_1'] == base_data['Track_2']], inplace = True)
-       base_data.drop(["Seed_ID"],axis=1,inplace=True)
-       Records_After_Compression=len(base_data.axes[0])
-       if Records>0:
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SEED_SET_'+str(sj+1)+'.csv'
+           result=pd.read_csv(output_file_location,names = ['Track_1','Track_2'])
+           Records=len(result.axes[0])
+           print(UF.TimeStamp(),'Subset', str(sj+1), 'contains', Records, 'seeds',bcolors.ENDC)
+           result["Seed_ID"]= ['-'.join(sorted(tup)) for tup in zip(result['Track_1'], result['Track_2'])]
+           result.drop_duplicates(subset="Seed_ID",keep='first',inplace=True)
+           result.drop(result.index[result['Track_1'] == result['Track_2']], inplace = True)
+           result.drop(["Seed_ID"],axis=1,inplace=True)
+           Records_After_Compression=len(result.axes[0])
+           if Records>0:
               Compression_Ratio=int((Records_After_Compression/Records)*100)
-       else:
+           else:
               CompressionRatio=0
-       print(UF.TimeStamp(),'Set compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
-       base_data.to_csv(output_file_location,index=False)
+           print(UF.TimeStamp(),'Subset', str(sj+1), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
+           fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
+           for f in range(0,fractions):
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
+             result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
+
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateFullDecorateCleanUp(AFS_DIR, EOS_DIR)
+       UF.CreateKalmanSeedsCleanUp(AFS_DIR, EOS_DIR)
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"2-track vertex evaluation set ",bcolors.OKBLUE+output_file_location+bcolors.ENDC," is ready"+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"Seed generation is completed"+bcolors.ENDC)
 
 #End of the script
 

@@ -4,6 +4,8 @@
 import csv
 import argparse
 import pandas as pd
+import numpy as np
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -16,10 +18,10 @@ class bcolors:
 parser = argparse.ArgumentParser(description='select the data preparation parameters')
 parser.add_argument('--f',help="Please enter the full path to the file with track reconstruction", default='/eos/user/a/aiuliano/public/sims_fedra/CH1_pot_03_02_20/b000001/b000001_withtracks.csv')
 parser.add_argument('--Track',help="Which tracks to use FEDRA/MC (For actual vertexing the track designations used by FEDRA should be used", default='FEDRA')
-parser.add_argument('--Xmin',help="This option restricts data to only those events that have tracks with hits x-coordinates that are above this value", default='0')
-parser.add_argument('--Xmax',help="This option restricts data to only those events that have tracks with hits x-coordinates that are below this value", default='0')
-parser.add_argument('--Ymin',help="This option restricts data to only those events that have tracks with hits y-coordinates that are above this value", default='0')
-parser.add_argument('--Ymax',help="This option restricts data to only those events that have tracks with hits y-coordinates that are below this value", default='0')
+parser.add_argument('--Xmin',help="This option excludes data events that have tracks with hits x-coordinates that are above this value", default='0')
+parser.add_argument('--Xmax',help="This option excludes data events that have tracks with hits x-coordinates that are below this value", default='0')
+parser.add_argument('--Ymin',help="This option excludes data events that have tracks with hits y-coordinates that are above this value", default='0')
+parser.add_argument('--Ymax',help="This option excludes data events that have tracks with hits y-coordinates that are below this value", default='0')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 input_file_location=args.f
@@ -44,7 +46,7 @@ sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF
 import Parameters as PM
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(bcolors.HEADER+"####################  Initialising EDER-VIANN reconstruction data preparation module ###################"+bcolors.ENDC)
+print(bcolors.HEADER+"####################  Initialising EDER-VIANN training data preparation module       ###################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################                 PhD Student at UCL                   #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
@@ -61,7 +63,6 @@ if Track=='FEDRA':
  print(UF.TimeStamp(),'The raw data has ',total_rows,' hits')
  print(UF.TimeStamp(),'Removing unreconstructed hits...')
  data[PM.MC_VX_ID] = data[PM.MC_VX_ID].astype(str)
- data.drop(data.index[data[PM.MC_VX_ID] == PM.MC_NV_VX_ID], inplace = True)
  data=data.dropna()
  final_rows=len(data.axes[0])
  print(UF.TimeStamp(),'The cleaned data has ',final_rows,' hits')
@@ -89,10 +90,13 @@ if Track=='FEDRA':
      ValidEvents=data.drop(data.index[(data[PM.x] > Xmax) | (data[PM.x] < Xmin) | (data[PM.y] > Ymax) | (data[PM.y] < Ymin)])
      ValidEvents.drop([PM.x,PM.y,PM.z,'Mother_ID'],axis=1,inplace=True)
      ValidEvents.drop_duplicates(subset="Track_ID",keep='first',inplace=True)
-     data=pd.merge(data, ValidEvents, how="inner", on=['Track_ID'])
+     ValidEvents=ValidEvents.rename(columns={"Track_ID": "Track_Control"})
+     data=pd.merge(data, ValidEvents, how="left", left_on=['Track_ID'],right_on=['Track_Control'])
+     data.drop(data.index[data['Track_Control']==data['Track_ID']], inplace = True)
+     data.drop(['Track_Control'],axis=1,inplace=True)
      final_rows=len(data.axes[0])
      print(UF.TimeStamp(),'The sliced data has ',final_rows,' hits')
- output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
+ output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET.csv'
 
 elif Track=='MC':
  data=pd.read_csv(input_file_location,
@@ -103,7 +107,6 @@ elif Track=='MC':
  print(UF.TimeStamp(),'Removing unreconstructed hits...')
  data=data.dropna()
  data[PM.MC_VX_ID] = data[PM.MC_VX_ID].astype(str)
- data.drop(data.index[data[PM.MC_VX_ID] == PM.MC_NV_VX_ID], inplace = True)
  final_rows=len(data.axes[0])
  print(UF.TimeStamp(),'The cleaned data has ',final_rows,' hits')
  data[PM.MC_Track_ID] = data[PM.MC_Track_ID].astype(int)
@@ -119,11 +122,14 @@ elif Track=='MC':
      ValidEvents=data.drop(data.index[(data[PM.x] > Xmax) | (data[PM.x] < Xmin) | (data[PM.y] > Ymax) | (data[PM.y] < Ymin)])
      ValidEvents.drop([PM.x,PM.y,PM.z,'Track_ID','Mother_ID'],axis=1,inplace=True)
      ValidEvents.drop_duplicates(subset=PM.MC_Event_ID,keep='first',inplace=True)
-     data=pd.merge(data, ValidEvents, how="inner", on=[PM.MC_Event_ID])
+     ValidEvents=ValidEvents.rename(columns={PM.MC_Event_ID: "Event_Control"})
+     data=pd.merge(data, ValidEvents, how="left", left_on=[PM.MC_Event_ID],right_on=['Event_Control'])
+     data.drop(data.index[data['Event_Control']==data[PM.MC_Event_ID]], inplace = True)
+     data.drop(['Event_Control'],axis=1,inplace=True)
      final_rows=len(data.axes[0])
      print(UF.TimeStamp(),'The sliced data has ',final_rows,' hits')
  data=data.drop([PM.MC_Event_ID],axis=1)
- output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
+ output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET.csv'
 else:
   print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
   print(UF.TimeStamp(), bcolors.FAIL+"No valid option for track reconstruction source has been chosen (FEDRA/MC), aborting the script..."+bcolors.ENDC)

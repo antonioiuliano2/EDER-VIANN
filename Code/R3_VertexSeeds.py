@@ -98,18 +98,11 @@ if Mode=='R':
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-            ContSub=True
-            f=0
-            while ContSub:
-             f+=1
+            for f in range(0,10000):
              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-             try:
-              csv_reader=open(new_output_file_location,"r")
-              csv_reader.close()
+             if os.path.isfile(output_result_locatio):
               job_details=[(j+1),(sj+1),f,TV_int_1,TV_int_2,TV_int_3,TV_int_4,TV_int_5,MaxDoca,resolution,acceptance,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
               UF.SubmitVertexSeedsJobsCondor(job_details)
-             except:
-              ContSub=False
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
    print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
@@ -122,18 +115,12 @@ if Mode=='C':
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
-           ContSub=True
-           f=0
-           while ContSub:
-             f+=1
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-             if os.path.isfile(new_output_file_location):
+           for f in range(0,10000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               job_details=[(j+1),(sj+1),f,TV_int_1,TV_int_2,TV_int_3,TV_int_4,TV_int_5,MaxDoca,resolution,acceptance,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
-              if os.path.isfile(required_output_file_location)!=True:
+              if os.path.isfile(required_output_file_location)!=True  and os.path.isfile(new_output_file_location):
                  bad_pop.append(job_details)
-             else:
-              ContSub=False
    if len(bad_pop)>0:
      print(UF.TimeStamp(),bcolors.WARNING+'Warning, there are still', len(bad_pop), 'HTCondor jobs remaining'+bcolors.ENDC)
      print(bcolors.BOLD+'If you would like to wait and try again later please enter W'+bcolors.ENDC)
@@ -153,14 +140,10 @@ if Mode=='C':
        print(UF.TimeStamp(),'Collating the results...')
        for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-           ContSub=True
-           f=0
-           while ContSub:
-             f+=1
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-             if os.path.isfile(new_output_file_location):
+           for f in range(0,10000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              if os.path.isfile(required_output_file_location)!=True:
+              if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
               else:
                  if (sj+1)==f==1:
@@ -169,9 +152,6 @@ if Mode=='C':
                     new_data=pd.read_csv(required_output_file_location,names=['Track_1','Track_2','VX_X','VX_Y','VX_Z','VX_FIT'])
                     frames=[base_data,new_data]
                     base_data=pd.concat(frames)
-                 print('Test',len(base_data.axes[0]))
-             else:
-              ContSub=False
         Records=len(base_data.axes[0])
         print(UF.TimeStamp(),'Set',str(j+1),'contains', Records, '2-track vertices',bcolors.ENDC)
         output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_'+str(j+1)+'.csv'

@@ -108,12 +108,12 @@ else:
   print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
   print(UF.TimeStamp(), bcolors.FAIL+"No valid option for track reconstruction source has been chosen (FEDRA/MC), aborting the script..."+bcolors.ENDC)
   exit()
-print(UF.TimeStamp(),'Removing 1 hit tracks...')
+print(UF.TimeStamp(),'Removing tracks which have less than',PM.MinHitsTrack,'hits...')
 track_no_data=data.groupby(['Track_ID'],as_index=False).count()
 track_no_data=track_no_data.drop([PM.y,PM.z],axis=1)
 track_no_data=track_no_data.rename(columns={PM.x: "Track_No"})
 new_combined_data=pd.merge(data, track_no_data, how="left", on=["Track_ID"])
-new_combined_data = new_combined_data[new_combined_data.Track_No >= 2]
+new_combined_data = new_combined_data[new_combined_data.Track_No >= PM.MinHitsTrack]
 new_combined_data = new_combined_data.drop(['Track_No'],axis=1)
 new_combined_data=new_combined_data.sort_values(['Track_ID',PM.x],ascending=[1,1])
 grand_final_rows=len(new_combined_data.axes[0])

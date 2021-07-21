@@ -84,6 +84,7 @@ if Mode=='R':
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
       UF.CreateFakeSeedsCleanUp(AFS_DIR, EOS_DIR)
+      UF.CreateFakeDecSeedsCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
@@ -94,15 +95,11 @@ if Mode=='C':
    bad_pop=[]
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
-   #for j in range(0,1):
        for sj in range(0,int(data[j][2])):
            job_details=[(j+1),(sj+1),data[j][0],SI_7,MaxTracksPerJob,AFS_DIR,EOS_DIR]
            output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FAKE_SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
            output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FAKE_SEED_SET_'+str(j+1)+'_'+str(sj+1)+'_RES.csv'
-           try:
-              csv_reader=open(output_result_location,"r")
-              csv_reader.close()
-           except:
+           if os.path.isfile(output_result_location) == False:
               bad_pop.append(job_details)
    if len(bad_pop)>0:
      print(UF.TimeStamp(),bcolors.WARNING+'Warning, there are still', len(bad_pop), 'HTCondor jobs remaining'+bcolors.ENDC)
