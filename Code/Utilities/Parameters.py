@@ -12,23 +12,31 @@ FEDRA_Track_QUADRANT='quarter'
 MC_Track_ID='MCTrack'
 MC_Event_ID='MCEvent'
 MC_VX_ID='MotherID'
+FEDRA_VX_ID='VertexS'
 MC_NV_VX_ID='-1'
-######List of geomtrical parameters
-SI_1=1050
-SI_2=1310
-SI_3=1850
-SI_4=2630
-SI_5=2900
-SI_6=3930
-SI_7=4000 #This parameter restricts the maximum euclidean distance between the first hits of the 2-track seeds that are subject to the Vertex Fit.
+FEDRA_NV_VX_ID='-1.0'
+
+#List of the package run parameters
 MaxTracksPerJob=20000 #This parameter imposes the limit on the number of the tracks form the Start plate when forming the Seeds.
 MaxEvalTracksPerJob=20000 #This parameter imposes the limit on the number of the tracks form the Start plate when forming the Seeds.
 MaxSeedsPerJob=40000
-TV_int_1=1900
-TV_int_2=2500
-TV_int_3=3000
-TV_int_4=3800
-TV_int_5=4080
+
+######List of geometrical constain parameters
+SI_1=1200
+SI_2=1310
+SI_3=1600
+SI_4=2620
+SI_5=3120
+SI_6=3940
+SI_7=4000 #This parameter restricts the maximum euclidean distance between the first hits of the 2-track seeds that are subject to the Vertex Fit.
+MinHitsTrack=2
+
+MaxTrainSampleSize=50000
+MaxValSampleSize=100000
+
+VO_T=3900 #The minimum distance from the reconstructed Vertex Origin to the closest starting hit of any track in the seed
+VO_max_Z=0 #Fidu
+VO_min_Z=-39500
 MaxDoca=200
 resolution=100
 acceptance=0.5
