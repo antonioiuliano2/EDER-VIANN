@@ -255,7 +255,7 @@ if Mode=='C':
        No_Train_Files=int(math.ceil(len(OldExtracted.axes[0])/PM.MaxTrainSampleSize))
        for SC in range(0,No_Train_Files):
          output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET_'+str(SC+1)+'.csv'
-         OldExtracted[(SC*PM.MaxTrainSampleSize):min(len(OldExtracted.axes[0]),((SC+1)*PM.MaxSeedsPerJob))].to_csv(output_file_location,index=False,header=False)
+         OldExtracted[(SC*PM.MaxTrainSampleSize):min(len(OldExtracted.axes[0]),((SC+1)*PM.MaxTrainSampleSize))].to_csv(output_file_location,index=False,header=False)
          print(UF.TimeStamp(), bcolors.OKGREEN+"Train Set", str(SC+1) ," has been saved at ",bcolors.OKBLUE+output_file_location+bcolors.ENDC,'file...'+bcolors.ENDC)
        #UF.CreateImageCleanUp(AFS_DIR, EOS_DIR)
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
