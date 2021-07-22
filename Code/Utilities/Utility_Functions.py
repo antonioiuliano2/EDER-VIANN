@@ -6,7 +6,7 @@ import os, shutil
 import subprocess
 #import time as t
 import datetime
-#import ast
+import ast
 import numpy as np
 #import scipy
 import copy
@@ -77,7 +77,7 @@ def EnrichImage(resolution, Image):
         except:
          PhiAngle=0.0
         TotalDistance=math.sqrt((deltaX**2)+(deltaY**2)+(deltaZ**2))
-        Distance=(TotalDistance/float(resolution*2))
+        Distance=(TotalDistance/float(resolution*4))
         if Distance>=0 and Distance<1:
             Distance=1.0
         if Distance<0 and Distance>-1:
@@ -1171,7 +1171,7 @@ def LoadRenderImages(Images,resolution,MaxX,MaxY,MaxZ,StartSeed,EndSeed,Train):
         Images_Copy[im]=ChangeImageResoluion(resolution, Images_Copy[im])
         additional_data[im]=ChangeImageResoluion(resolution, additional_data[im])
         if Train:
-           ImagesY[im]=int(float(Images_Copy[im][3])/2)
+           ImagesY[im]=int(float(Images_Copy[im][2][0]))
         else:
            ImagesY[im]=0
         BlankRenderedImage=[]
@@ -1196,6 +1196,35 @@ def LoadRenderImages(Images,resolution,MaxX,MaxY,MaxZ,StartSeed,EndSeed,Train):
     del additional_data
     return (ImagesX,ImagesY)
 
+def LoadImage(location,SeedNo,Type):
+    csv_read_file=open(location,"r")
+    csv_read = csv.reader(csv_read_file, delimiter=',')
+    Images=list(csv_read)
+    if SeedNo>=len(Images):
+        return(len(Images))
+    csv_read_file.close()
+    Im=Images[SeedNo]
+    for l in range(0,len(Im)):
+     Im[l]=ast.literal_eval(Im[l])
+    if Type=='ANY':
+         return Im
+    elif Type=='Fake':
+       if Im[2][0]==0:
+          return(Im)
+    elif Type=='Truth':
+       if Im[2][0]==1:
+          return(Im)
+    return []
+def LoadAllImages(location):
+    csv_read_file=open(location,"r")
+    csv_read = csv.reader(csv_read_file, delimiter=',')
+    Images=list(csv_read)
+    csv_read_file.close()
+    Refined_Images=[]
+    for Im in Images:
+        for l in range(0,len(Im)):
+          Im[l]=ast.literal_eval(Im[l])
+    return Images
 def CheckSeedsOverlap(seed1,seed2):
     for t1 in seed1[0]:
         for t2 in seed2[0]:
