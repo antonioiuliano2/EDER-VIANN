@@ -5,15 +5,16 @@ This README just serves as a very short user guide, the documentation will be wr
 
 ------- Installation steps --------
 
-1) pip3 install tensorflow --user
+1) pip3 install tensorflow==1.14.0 --user
 2) pip3 install keras==2.3.1 --user
-3) go to your home directory on AFS where you would like to install the package
-4) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
-5) cd EDER-VIANN/
-6) python3 setup.py
-7) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models (has to provide up to 10-100 GB of storage depending on whether particular components of the framework is used. An example of the input is /eos/experiment/ship/user/username (but create the directory there first).
-8) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
-9) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work.
+3) (Only required if you have intent to create/train CNN models) pip3 install tensorflow-gpu==1.14.0 --user
+4) go to your home directory on AFS where you would like to install the package
+5) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
+6) cd EDER-VIANN/
+7) python3 setup.py
+8) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models (has to provide up to 10-100 GB of storage depending on whether particular components of the framework is used. An example of the input is /eos/experiment/ship/user/username (but create the directory there first).
+9) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
+10) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work.
 
 -------- Vertex Reconstruction -------
 1) Please make sure that you have a file with hits that there were reconstructed as Tracks.
@@ -33,4 +34,12 @@ This README just serves as a very short user guide, the documentation will be wr
 8) python3 R2_GenerateSeeds.py --Mode R
    (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
 9) (After an hour or so) python3 R2_GenerateSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
-10) This process is repeated multiple times until the model is sufficinetly trained
+   If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
+10) python3 R3_VertexSeeds.py --Mode R
+    (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.)
+11) (After an hour or so) python3 R3_VertexSeeds.py --Mode R (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
+   If the jobs are completed it will remove duplicates from the vertexed seeds and generate the following message: "2-track vertexing is completed".
+   
+ -------- Vertex Reconstruction Evaluation ------
+ 
+
