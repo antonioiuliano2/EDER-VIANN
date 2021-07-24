@@ -41,5 +41,7 @@ This README just serves as a very short user guide, the documentation will be wr
    If the jobs are completed it will remove duplicates from the vertexed seeds and generate the following message: "2-track vertexing is completed".
    
  -------- Vertex Reconstruction Evaluation ------
- 
-
+ --Can only be used if there is a data available with MC vertex truth information.
+1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 120000 --Ymin 50000 --Ymax 120000 --Track FEDRA --f $<your file with reconstructed tracks> (min and max value    arguments have to match those that were used in for previous phase in Step 7).The script can take 1-5 minutes depending on the size of the input file. Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.)
+2) python3 E2_GenerateSeeds.py --Mode R
+   (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
