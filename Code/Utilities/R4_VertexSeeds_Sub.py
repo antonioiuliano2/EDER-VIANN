@@ -8,8 +8,8 @@ import pandas as pd #We use Panda for a routine data processing
 #import copy
 #import numpy as np
 #import random
-#import tensorflow as tf
-#from tensorflow import keras
+import tensorflow as tf
+from tensorflow import keras
 
 import os, psutil #helps to monitor the memory
 import gc  #Helps to clear memory
@@ -25,21 +25,37 @@ class bcolors:
     UNDERLINE = '\033[4m'
 parser = argparse.ArgumentParser(description='select cut parameters')
 parser.add_argument('--Set',help="Set Number", default='1')
-parser.add_argument('--SubSet',help="SubSet Number", default='1')
 parser.add_argument('--Fraction',help="Fraction", default='1')
 parser.add_argument('--EOS',help="EOS location", default='')
 parser.add_argument('--AFS',help="AFS location", default='')
+parser.add_argument('--resolution',help="Resolution in microns per pixel", default='100')
+parser.add_argument('--acceptance',help="Vertex fit minimum acceptance", default='0.5')
+parser.add_argument('--MaxX',help="Image size in microns along the x-axis", default='3500.0')
+parser.add_argument('--MaxY',help="Image size in microns along the y-axis", default='1000.0')
+parser.add_argument('--MaxZ',help="Image size in microns along the z-axis", default='20000.0')
+parser.add_argument('--ModelName',help="Name of the CNN model", default='1_vx_model')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 Set=args.Set
-SubSet=args.SubSet
 fraction=args.Fraction
+resolution=float(args.resolution)
+acceptance=float(args.acceptance)
+#Maximum bounds on the image size in microns
+MaxX=float(args.MaxX)
+MaxY=float(args.MaxY)
+MaxZ=float(args.MaxZ)
+#Converting image size bounds in line with resolution settings
+boundsX=int(round(MaxX/resolution,0))
+boundsY=int(round(MaxY/resolution,0))
+boundsZ=int(round(MaxZ/resolution,0))
+H=boundsX*2
+W=boundsY*2
+L=boundsZ
 AFS_DIR=args.AFS
 EOS_DIR=args.EOS
-
 input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_CANDIDATE_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
-output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_RAW_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REFINED_SET_'+Set+'_'+fraction+'.csv'
+output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_'+Set+'_'+fraction+'.csv'
 print(UF.TimeStamp(),'Loading the data')
 seeds=pd.read_csv(input_seed_file_location)
 seeds_1=seeds.drop(['Track_2'],axis=1)
@@ -64,38 +80,39 @@ gc.collect()
 limit=len(seeds)
 seed_counter=0
 print(UF.TimeStamp(),bcolors.OKGREEN+'Data has been successfully loaded and prepared..'+bcolors.ENDC)
+print(UF.TimeStamp(),'Loading the model...')
+#Load the model
+model_name=EOS_DIR+'/EDER-VIANN/Models/'+args.ModelName
+model=tf.keras.models.load_model(model_name)
 #create seeds
 GoodSeeds=[]
-Header=['Track_1','Track_2','VX_X','VX_Y','VX_Z','DOCA','Tr1-VO','Tr2-VO','Tr1-Tr2','Opening Angle']
-GoodSeeds.append(Header)
 print(UF.TimeStamp(),'Beginning the vertexing part...')
 for s in range(0,limit):
     seed=seeds.pop(0)
-    seed=UF.DecorateSeedTracks(seed,tracks)
-    seed=UF.SortImage(seed)
-    try:
-     VO=UF.GiveExpressSeedInfo(seed)[0].tolist()
-    except:
-     VO=['Fail','Fail','Fail']
-    seed=UF.PreShiftImage(seed)
+    decorated_seed=seed[:2]
+    decorated_seed=UF.DecorateSeedTracks(decorated_seed,tracks)
+    decorated_seed=UF.SortImage(decorated_seed)
+    decorated_seed=UF.PreShiftImage(decorated_seed)
     seed_counter+=1
     if seed_counter>=1000:
               progress=int( round( (float(s)/float(limit)*100),0)  )
-              print(UF.TimeStamp(),"Performing fake seed decoration",s,", progress is ",progress,' % of seeds are decorated')
-              print(UF.TimeStamp(),'Memory usage is',psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+              print(UF.TimeStamp(),"Performing vertex fit on the seed",s,", progress is ",progress,' % of seeds analysed')
+              print(UF.TimeStamp(),'Memory usage is',psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2, 'MB')
               seed_counter=0
-
-    seed=UF.LonRotateImage(seed,'x')
-    seed=UF.LonRotateImage(seed,'y')
-    seed=UF.SortImage(seed)
-    seed=UF.PhiRotateImage(seed)
-    try:
-      SEI=UF.GiveFullSeedInfo(seed)
-    except:
-      SEI=[['Fail','Fail','Fail'],'Fail','Fail','Fail','Fail','Fail']
-    new_seed=[seed[0][0],seed[0][1],VO[0],VO[1],VO[2],SEI[1],SEI[2],SEI[3],SEI[4],SEI[5]]
-    GoodSeeds.append(new_seed)
-print(UF.TimeStamp(),bcolors.OKGREEN+'The fake seed decoration has been completed..'+bcolors.ENDC)
+    decorated_seed=UF.LonRotateImage(decorated_seed,'x')
+    decorated_seed=UF.LonRotateImage(decorated_seed,'y')
+    decorated_seed=UF.SortImage(decorated_seed)
+    decorated_seed=UF.PhiRotateImage(decorated_seed)
+    decorated_seed=UF.AfterShiftImage(decorated_seed,resolution)
+    decorated_seed=UF.RescaleImage(decorated_seed,MaxX,MaxY,MaxZ,resolution)
+    SeedImage=UF.LoadRenderImages([decorated_seed],resolution,MaxX,MaxY,MaxZ,1,1,False)[0]
+    pred = model.predict(SeedImage)
+    if pred[0][1]>=acceptance:
+              seed.append(pred[0][1])
+              GoodSeeds.append(seed)
+    else:
+              continue
+print(UF.TimeStamp(),bcolors.OKGREEN+'The vertexing has been completed..'+bcolors.ENDC)
 del tracks
 del seeds
 gc.collect()
