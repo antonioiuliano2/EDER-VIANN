@@ -89,8 +89,6 @@ if Mode=='R':
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
       UF.CreateSeedsCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateFullVertexCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateVertexCleanUp(AFS_DIR, EOS_DIR)
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
