@@ -33,8 +33,7 @@ Vertex Reconstruction
    - z-coordinates of the track hits
 
 2) Please open $AFS/EDER_VIANN/Code/Utilities/Parameters.py and check that the lines between 6-13 
-  --
-  Within the list of naming conventions correspond to headers in the file that you intend to use.
+   Within the list of naming conventions correspond to headers in the file that you intend to use.
 
 3) Check the 'CNN_Model_Name' variable - it has the name of the Model that is used for reconstruction (included in the package). If you wish to use your own,        please place it in the $EOS/EDER_VIANN/Models and change the 'CNN_Model_Name' variable accordingly. You might need to change resolution and MaxX, MaxY, MaxZ      parameters if the model was trained with images that have had different size because the model might fail.
 
@@ -48,11 +47,9 @@ Vertex Reconstruction
 7) kinit your<username>@CERN.CH -l 24h00m
 
 8) python3 R1_PrepareRecData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
-   --
    min and max value arguments can be changed or completely removed if all ECC data to be reconstructed. Track type can be changed to MC if Monte-Carlo truth        track reconstruction data is used. The script can take 1-5 minutes depending on the size of the input file. Once it finish it will give the message "The track    data has been created successfully and written to ....' and exit.
 
 9) python3 R2_GenerateSeeds.py --Mode R
-   --
    The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
 
 10) python3 R2_GenerateSeeds.py --Mode C
