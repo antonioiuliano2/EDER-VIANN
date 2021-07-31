@@ -25,7 +25,7 @@ This README just serves as a very short user guide, the documentation will be wr
    - y-coordinates of the track hits
    - z-coordinates of the track hits
 2) Please open $AFS/EDER_VIANN/Code/Utilities/Parameters.py and check that the lines between 6-13 (within the list of naming conventions correspond to headers in  the      file that you intend to use.
-3) Check the 'CNN_Model_Name' variable - it has the name of the Model that is used for reconstruction (included in the package). If you wish to use your own, please place it in the $EOS/EDER_VIANN/Models and change the 'CNN_Model_Name' variable accordingly. You might need to change resolution and MaxX, MaxY, MaxZ parameters if the model was trained with images that have had different size because the model will fail if the image format is different.
+3) Check the 'CNN_Model_Name' variable - it has the name of the Model that is used for reconstruction (included in the package). If you wish to use your own, please place it in the $EOS/EDER_VIANN/Models and change the 'CNN_Model_Name' variable accordingly. You might need to change resolution and MaxX, MaxY, MaxZ parameters if the model was trained with images that have had different size because the model might fail.
 4) If happy, save and close the file.
 4) cd ..
 5) tmux (please note the number of lxplus machine at which tmux session is logged in)
