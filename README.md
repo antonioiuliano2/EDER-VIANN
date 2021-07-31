@@ -66,8 +66,7 @@ Vertex Reconstruction
     The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.
 
 14) python3 R4_VertexSeeds.py --Mode C 
-    Tt will check whether the HTCondor jobs have been completed, if not it will give a warning.
-    The output will produce a file R4_REC_SEEDS.csv with a list of seeds with each one given a probability value. 
+   It will check whether the HTCondor jobs have been completed, if not it will give a warning.The output will produce a file R4_REC_SEEDS.csv with a list of seeds with each one given a probability value. 
 
 15) python3 R5_MergeVertices.py 
     The execution can take up to several hours if the data size is big. The program will produce the R5_REC_VERTICES file. In the file each line will contain a       list of tracks and the vertex number. The script can be ran with the option '--Acceptance' which takes in account only the seeds with probability above the       given value (has to be between 0 and 1)
