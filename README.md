@@ -36,7 +36,7 @@ Additional info
    d) Yellow for warnings and non-critical errors.
    e) Red for critical errors.
 8) Once the program successfully executes it will leave a following message before exiting: 
-   "############################################# End of the program ################################################"
+   "###### End of the program #####"
 
 
 Vertex Reconstruction
