@@ -22,7 +22,8 @@ Installation steps
 
 
 
--------- Vertex Reconstruction -------
+Vertex Reconstruction
+--
 1) Please make sure that you have a file with hits that there were reconstructed as Tracks.
    Following columns are required: 
    - Track ID Quadrant or Event ID (if MC truth track reconstruction data is used)
@@ -42,8 +43,7 @@ Installation steps
 5) cd ..
 
 6) tmux 
-    --
-   please note the number of lxplus machine at which tmux session is logged in)
+   please note the number of lxplus machine at which tmux session is logged in
 
 7) kinit your<username>@CERN.CH -l 24h00m
 
@@ -56,35 +56,30 @@ Installation steps
    The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
 
 10) python3 R2_GenerateSeeds.py --Mode C
-   --
    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
    If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
 
 11) python3 R3_FilterSeeds.py --Mode R
-    --
     The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.
 
 12) python3 python3 R3_FilterSeeds.py --Mode C 
-    --
     It will check whether the HTCondor jobs have been completed, if not it will give a warning.
 
 13) python3 R4_VertexSeeds.py --Mode R 
-    --
     The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.
 
 14) python3 R4_VertexSeeds.py --Mode C 
-    --
     Tt will check whether the HTCondor jobs have been completed, if not it will give a warning.
     The output will produce a file R4_REC_SEEDS.csv with a list of seeds with each one given a probability value. 
 
 15) python3 R5_MergeVertices.py 
-    --
     The execution can take up to several hours if the data size is big. The program will produce the R5_REC_VERTICES file. In the file each line will contain a       list of tracks and the vertex number. The script can be ran with the option '--Acceptance' which takes in account only the seeds with probability above the       given value (has to be between 0 and 1)
    
    
    
- -------- EDER-VIANN Vertex Reconstruction Evaluation ------
- --Can only be used if there is a data available with MC vertex truth information.
+EDER-VIANN Vertex Reconstruction Evaluation
+--
+Can only be used if there is a data available with MC vertex truth information.
 1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> (min and max value      arguments have to match those that were used in for previous phase in Step 7).The script can take 1-5 minutes depending on the size of the input file. Once it    finish it will give the message "The track data has been created successfully and written to ....' and exit.)
 2) python3 E2_GenerateEvalSeeds.py --Mode C (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
 3) (After an hour or so) python3 E2_GenerateEvalSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
