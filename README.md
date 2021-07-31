@@ -1,5 +1,6 @@
 # EDER-VIANN
 Emulsion Data Event Reconstruction - Vertex Identification by using Artificial Neural Networks
+Release 1
 
 This README just serves as a very short user guide, the documentation will be written much later
 
@@ -28,6 +29,14 @@ Additional info
 5) The output of each script has the same prefix as the script that generates it. If script generates a temporary output for another script it will have the double prefix e.g: R2_R3 etc.
 6) The files that are the final output have names with capital letters only such as: R5_REC_VERTICES
    Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore.
+7) The screen output of the scripts is colour coded: 
+   a) White for routine operations
+   b) Blue for the file and folder locations
+   c) Green for successful operation completions
+   d) Yellow for warnings and non-critical errors.
+   e) Red for critical errors.
+8) Once the program successfully executes it will leave a following message before exiting: 
+   "############################################# End of the program ################################################"
 
 
 Vertex Reconstruction
