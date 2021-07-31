@@ -104,7 +104,7 @@ Can only be used if there is a data available with MC vertex truth information.
    
 1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
    
-   min and max value arguments have to match those that were used in for previous phase in Step 7).
+   min and max value arguments have to match those that were used in for previous phase in Step 8).
    The script can take 1-5 minutes depending on the size of the input file.
    Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.
 
