@@ -19,7 +19,15 @@ Installation steps
 9) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
 10) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
 
-
+Additional info
+--
+1) It is recomended to run those processes on lxplus in the tmux shell as some scripts can take up to several hours to execute.
+2) The script name prefixes indicate what kind of opeartions this script perform: R is for acrual reconstruction routines, E for evaluation and M for model cration and training.
+3) In general the numbers in prefixes reflect the order at which scripts have to be executed e.g: R1, R2,R3...
+4) --help argument provides all the available run arguments of the script
+5) The output of each script has the same prefix as the script that generates it. If script generates a temporary output for another script it will have the double prefix e.g: R2_R3 etc.
+6) The files that are the final output have names with capital letters only such as: R5_REC_VERTICES
+   Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore..
 
 
 Vertex Reconstruction
@@ -51,25 +59,32 @@ Vertex Reconstruction
    min and max value arguments can be changed or completely removed if all ECC data to be reconstructed. Track type can be changed to MC if Monte-Carlo truth        track reconstruction data is used. The script can take 1-5 minutes depending on the size of the input file. Once it finish it will give the message "The track    data has been created successfully and written to ....' and exit.
 
 9) python3 R2_GenerateSeeds.py --Mode R
+   
    The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
 
 10) python3 R2_GenerateSeeds.py --Mode C
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
-   If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
+    
+    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+    If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
 
 11) python3 R3_FilterSeeds.py --Mode R
+    
     The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.
 
 12) python3 python3 R3_FilterSeeds.py --Mode C 
+    
     It will check whether the HTCondor jobs have been completed, if not it will give a warning.
 
 13) python3 R4_VertexSeeds.py --Mode R 
+    
     The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs can take few hours.
 
 14) python3 R4_VertexSeeds.py --Mode C 
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.The output will produce a file R4_REC_SEEDS.csv with a list of seeds with each one given a probability value. 
+   
+    It will check whether the HTCondor jobs have been completed, if not it will give a warning.The output will produce a file R4_REC_SEEDS.csv with a list of seeds with each one given a probability value. 
 
 15) python3 R5_MergeVertices.py 
+    
     The execution can take up to several hours if the data size is big. The program will produce the R5_REC_VERTICES file. In the file each line will contain a       list of tracks and the vertex number. The script can be ran with the option '--Acceptance' which takes in account only the seeds with probability above the       given value (has to be between 0 and 1)
    
    
