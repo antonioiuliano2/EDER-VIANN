@@ -30,11 +30,11 @@ Additional info
 6) The files that are the final output have names with capital letters only such as: R5_REC_VERTICES
    Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore.
 7) The screen output of the scripts is colour coded: 
-   a) White for routine operations
-   b) Blue for the file and folder locations
-   c) Green for successful operation completions
-   d) Yellow for warnings and non-critical errors.
-   e) Red for critical errors.
+   - White for routine operations
+   - Blue for the file and folder locations
+   - Green for successful operation completions
+   - Yellow for warnings and non-critical errors.
+   - Red for critical errors.
 8) Once the program successfully executes it will leave a following message before exiting: 
    "###### End of the program #####"
 
@@ -101,6 +101,7 @@ Vertex Reconstruction
 EDER-VIANN Vertex Reconstruction Evaluation
 --
 Can only be used if there is a data available with MC vertex truth information.
+   
 1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
    
    min and max value arguments have to match those that were used in for previous phase in Step 7).
@@ -120,10 +121,10 @@ Can only be used if there is a data available with MC vertex truth information.
    
    The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
    
-5) python3 E2_GenerateEvalSeeds.py --Mode C
+5) python3 E3_DecorateEvalSeeds.py --Mode C
    
    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
-   The output will generate the file 
+   The output will generate the file E3_TRUTH_SEEDS.csv that contains all seeds that have a common Mother ID. This file has additional information on the Seeds      such as opening angle, DOCA etc. This file is used to assess the perfromance of the EDER-VIANN and FEDRA reconstruction accuracy.
    
    
    
