@@ -24,10 +24,10 @@ Additional info
 1) It is recomended to run those processes on lxplus in the tmux shell as some scripts can take up to several hours to execute.
 2) The script name prefixes indicate what kind of opeartions this script perform: R is for acrual reconstruction routines, E for evaluation and M for model cration and training.
 3) In general the numbers in prefixes reflect the order at which scripts have to be executed e.g: R1, R2,R3...
-4) --help argument provides all the available run arguments of the script
+4) --help argument provides all the available run arguments of a script
 5) The output of each script has the same prefix as the script that generates it. If script generates a temporary output for another script it will have the double prefix e.g: R2_R3 etc.
 6) The files that are the final output have names with capital letters only such as: R5_REC_VERTICES
-   Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore..
+   Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore.
 
 
 Vertex Reconstruction
