@@ -101,13 +101,33 @@ Vertex Reconstruction
 EDER-VIANN Vertex Reconstruction Evaluation
 --
 Can only be used if there is a data available with MC vertex truth information.
-1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> (min and max value      arguments have to match those that were used in for previous phase in Step 7).The script can take 1-5 minutes depending on the size of the input file. Once it    finish it will give the message "The track data has been created successfully and written to ....' and exit.)
-2) python3 E2_GenerateEvalSeeds.py --Mode C (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
-3) (After an hour or so) python3 E2_GenerateEvalSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
+1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
+   
+   min and max value arguments have to match those that were used in for previous phase in Step 7).
+   The script can take 1-5 minutes depending on the size of the input file.
+   Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.
+
+2) python3 E2_GenerateEvalSeeds.py --Mode C 
+   
+   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
+
+3) python3 E2_GenerateEvalSeeds.py --Mode C 
+   
+   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
    If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
-   python3 E3_DecorateEvalSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
-   (After an hour or so) python3 E2_GenerateEvalSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
-   -------- FEDRA Vertex Reconstruction Evaluation -----
+   
+4) python3 E3_DecorateEvalSeeds.py --Mode R 
+   
+   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
+   
+5) python3 E2_GenerateEvalSeeds.py --Mode C
+   
+   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   The output will generate the file 
+   
+   
+   
+   FEDRA Vertex Reconstruction Evaluation -----
    --Can only be used if there is a data available with FEDRA vertex reconstruction information.
 1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f $<your file with reconstructed tracks>
 2) python3 E8_GenerateKalmanSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.)
