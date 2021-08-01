@@ -22,6 +22,8 @@ Installation steps
    
    Pandas are used extensively in this package for routine data manipulation.
 
+7) pip3 install psutil
+
 8) go to your home directory on AFS where you would like to install the package
 
 9) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
@@ -29,8 +31,8 @@ Installation steps
 11) python3 setup.py
 12) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models
    Has to provide up to 10-100 GB of storage depending on whether particular components of the framework is used. An example of the input is /eos/user/<username      first letter>/<user name> . In theory AFS work location also can be specified but it is not recommended.
-9) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
-10) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
+13) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
+14) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
 
 Additional info
 --
