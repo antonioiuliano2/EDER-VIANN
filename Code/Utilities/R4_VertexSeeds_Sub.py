@@ -33,7 +33,7 @@ parser.add_argument('--acceptance',help="Vertex fit minimum acceptance", default
 parser.add_argument('--MaxX',help="Image size in microns along the x-axis", default='3500.0')
 parser.add_argument('--MaxY',help="Image size in microns along the y-axis", default='1000.0')
 parser.add_argument('--MaxZ',help="Image size in microns along the z-axis", default='20000.0')
-parser.add_argument('--ModelName',help="Name of the CNN model", default='1_vx_model')
+parser.add_argument('--ModelName',help="Name of the CNN model", default='2T_100_MC_1_model')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 Set=args.Set
@@ -53,9 +53,9 @@ W=boundsY*2
 L=boundsZ
 AFS_DIR=args.AFS
 EOS_DIR=args.EOS
-input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REFINED_SET_'+Set+'_'+fraction+'.csv'
-output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_'+Set+'_'+fraction+'.csv'
+input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
+input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R3_R4_FilteredSeeds_'+Set+'_'+fraction+'.csv'
+output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R4_R4_RecSeeds_'+Set+'_'+fraction+'.csv'
 print(UF.TimeStamp(),'Loading the data')
 seeds=pd.read_csv(input_seed_file_location)
 seeds_1=seeds.drop(['Track_2'],axis=1)
@@ -105,7 +105,11 @@ for s in range(0,limit):
     decorated_seed=UF.PhiRotateImage(decorated_seed)
     decorated_seed=UF.AfterShiftImage(decorated_seed,resolution)
     decorated_seed=UF.RescaleImage(decorated_seed,MaxX,MaxY,MaxZ,resolution)
-    SeedImage=UF.LoadRenderImages([decorated_seed],resolution,MaxX,MaxY,MaxZ,1,1,False)[0]
+    try:
+       SeedImage=UF.LoadRenderImages([decorated_seed],resolution,MaxX,MaxY,MaxZ,1,1,False)[0]
+    except:
+       print(decorated_seed)
+       exit()
     pred = model.predict(SeedImage)
     if pred[0][1]>=acceptance:
               seed.append(pred[0][1])

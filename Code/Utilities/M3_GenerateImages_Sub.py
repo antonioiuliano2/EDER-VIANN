@@ -54,9 +54,9 @@ L=boundsZ
 AFS_DIR=args.AFS
 EOS_DIR=args.EOS
 
-input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET.csv'
-input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
-output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_RAW_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M1_TRACKS.csv'
+input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M3_RawSeeds_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_M3_Images_'+Set+'_'+SubSet+'_'+fraction+'.csv'
 print(UF.TimeStamp(),'Loading the data')
 seeds=pd.read_csv(input_seed_file_location)
 seeds_1=seeds.drop(['Track_2'],axis=1)
@@ -95,8 +95,6 @@ for s in range(0,limit):
     elif label ==True:
         num_label = 1
         true_vx+=1
-        print(seed)
-        exit()
     seed=seed[:2]
     seed=UF.DecorateSeedTracks(seed,tracks)
     seed=UF.SortImage(seed)

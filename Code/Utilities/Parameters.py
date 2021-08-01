@@ -46,7 +46,7 @@ resolution=100
 MaxX=3500.0
 MaxY=1000.0
 MaxZ=20000.0
-CNN_Model_Name='1_vx_model'
+CNN_Model_Name='2T_100_MC_1_model'
 ModelArchitecture=\
     [[4, 4, 1, 2, 2, 2, 2], #Layer 1
         [5, 4, 1, 1, 2, 2, 2], #Layer 2

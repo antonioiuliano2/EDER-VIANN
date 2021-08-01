@@ -37,9 +37,9 @@ fraction=args.Fraction
 AFS_DIR=args.AFS
 EOS_DIR=args.EOS
 
-input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_CANDIDATE_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
-output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_RAW_SET_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+input_track_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
+input_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E5_E6_RawSeeds_'+Set+'_'+SubSet+'_'+fraction+'.csv'
+output_seed_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E6_DEC_FAKE_SEEDS_'+Set+'_'+SubSet+'_'+fraction+'.csv'
 print(UF.TimeStamp(),'Loading the data')
 seeds=pd.read_csv(input_seed_file_location)
 seeds_1=seeds.drop(['Track_2'],axis=1)

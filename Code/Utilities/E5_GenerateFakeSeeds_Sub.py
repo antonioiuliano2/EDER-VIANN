@@ -41,9 +41,9 @@ AFS_DIR=args.AFS
 import Utility_Functions as UF #This is where we keep routine utility functions
 
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FAKE_SEED_SET_'+Set+'_'+str(Subset)+'.csv'
-output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FAKE_SEED_SET_'+Set+'_'+str(Subset)+'_RES.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
+output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E5_E5_RawSeeds_'+Set+'_'+str(Subset)+'.csv'
+output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E5_E5_RawSeeds_'+Set+'_'+str(Subset)+'_RES.csv'
 print(UF.TimeStamp(), "Modules Have been imported successfully...")
 print(UF.TimeStamp(),'Loading pre-selected data from ',input_file_location)
 data=pd.read_csv(input_file_location)

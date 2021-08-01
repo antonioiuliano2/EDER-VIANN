@@ -51,7 +51,8 @@ parser.add_argument('--MaxY',help="Please enter the value of MaxY", default='100
 parser.add_argument('--MaxZ',help="Please enter the value of MaxZ", default='20000.0')
 parser.add_argument('--LR',help="Please enter the value of learning rate", default='Default')
 parser.add_argument('--Epoch',help="Please enter the epoch number", default='1')
-parser.add_argument('--ModelName',help="Name of the model", default='1_vx_model')
+parser.add_argument('--ModelName',help="Name of the model", default='2T_100_MC_1_model')
+parser.add_argument('--ModelNewName',help="Name of the model", default='2T_100_MC_1_model')
 ########################################     Initialising Variables    #########################################
 args = parser.parse_args()
 ImageSet=args.ImageSet
@@ -93,8 +94,8 @@ import Utility_Functions as UF
 #Load data configuration
 EOSsubDIR=EOS_DIR+'/'+'EDER-VIANN'
 EOSsubModelDIR=EOSsubDIR+'/'+'Models'
-flocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/'+'TRAIN_SET_'+ImageSet+'.csv'
-vlocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VALIDATION_SET.csv'
+flocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/'+'M3_TRAIN_SET_'+ImageSet+'.csv'
+vlocation=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_VALIDATION_SET.csv'
 #train_history = tf.keras.callbacks.CSVLogger(EOSsubModelDIR+'/'+'train_log_'+ImageSet+'.csv', separator=",", append=True)
 
 ##############################################################################################################################
@@ -187,8 +188,8 @@ for ib in range(0,NValBatches):
     val_loss=a[0]
     val_acc=a[1]
 if ValidModel:
-    model_name=EOSsubModelDIR+'/'+args.ModelName
+    model_name=EOSsubModelDIR+'/'+args.ModelNewName
     model.save(model_name)
     records.append([int(args.Epoch),ImageSet,len(TrainImages),train_loss,train_acc,val_loss,val_acc])
-    UF.LogOperations(EOSsubModelDIR+'/'+'model_train_log_'+ImageSet+'.csv','StartLog', records)
+    UF.LogOperations(EOSsubModelDIR+'/'+'M5_M5_model_train_log_'+ImageSet+'.csv','StartLog', records)
 
