@@ -88,8 +88,7 @@ Vertex Reconstruction
 
 10) python3 R2_GenerateSeeds.py --Mode C
     
-    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
-    If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
+    FYI: It will check whether the HTCondor jobs have been completed, if not it will give a warning. If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
 
 11) python3 R3_FilterSeeds.py --Mode R
     
