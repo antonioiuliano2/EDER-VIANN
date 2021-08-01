@@ -43,7 +43,7 @@ import Utility_Functions as UF #This is where we keep routine utility functions
 import Parameters as PM #This is where we keep framework global parameters
 
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script compares the ouput of the previous step with the output of EDER-VIANN reconstructed data to calculate reconstruction perfromance.')
 parser.add_argument('--Acceptance',help="What is the mininimum acceptance", default='0.5')
 parser.add_argument('--sf',help="Please choose the input file", default=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R4_REC_SEEDS.csv')
 parser.add_argument('--of',help="Please choose the evaluation file (has to match the same geometrical domain and type of the track as the subject", default=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E3_TRUTH_SEEDS.csv')

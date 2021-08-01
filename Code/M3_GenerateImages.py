@@ -24,7 +24,7 @@ class bcolors:   #We use it for the interface
     UNDERLINE = '\033[4m'
 
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script takes the output from the previous step and decorates the mwith track hit information that can be used to render the seed image. This script creates teraining and validation samples.')
 parser.add_argument('--Mode',help="Running Mode: Reset(R)/Continue(C)", default='C')
 parser.add_argument('--Samples',help="How many samples? Please enter the number or ALL if you want to use all data", default='ALL')
 parser.add_argument('--ValidationSize',help="What is the proportion of Validation Images?", default='0.1')

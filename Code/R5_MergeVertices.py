@@ -24,7 +24,7 @@ class bcolors:   #We use it for the interface
     UNDERLINE = '\033[4m'
 
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script takes vertex-fitted 2-track seed candidates from previous step and merges them if seeds have a common track')
 parser.add_argument('--Acceptance',help="Minimum acceptance for the track", default='0.5')
 parser.add_argument('--DataCut',help="In how many chunks would you like to split data?", default='30')
 ######################################## Set variables  #############################################################

@@ -39,7 +39,7 @@ import Parameters as PM #This is where we keep framework global parameters
 ########################################     Preset framework parameters    #########################################
  #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script compares the ouput of the previous step with the output of MC truth to calculate reconstruction perfromance.')
 parser.add_argument('--sf',help="Please choose the input file", default=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_KALMAN_REC_SEEDS.csv')
 parser.add_argument('--of',help="Please choose the evaluation file (has to match the same geometrical domain and type of the track as the subject", default=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E3_TRUTH_SEEDS.csv')
 args = parser.parse_args()

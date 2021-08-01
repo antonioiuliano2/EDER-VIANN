@@ -18,13 +18,13 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script helps to visualise the seeds by projecting their hit coordinates to the 2-d screen.')
 parser.add_argument('--Res',help="Please enter the scaling resolution in microns", default='100')
 parser.add_argument('--StartImage',help="Please select the beginning Image", default='1')
 parser.add_argument('--Images',help="Please select the number of Images", default='1')
 parser.add_argument('--Title',help="Plot title", default='')
 parser.add_argument('--PlotType',help="Enter plot type: XZ/YZ/3D", default='XZ')
-parser.add_argument('--Predict',help="USe the model to predict the outcome: Y/N ?", default='N')
+parser.add_argument('--Predict',help="Use the CNN model to predict the seed : Y/N ?", default='N')
 parser.add_argument('--Type',help="Please enter the sample type: Val or number for the training set", default='1')
 parser.add_argument('--Label',help="Which labels would you like to see: 'ANY/Fake/Truth", default='ANY')
 parser.add_argument('--ModelName',help="Name of the model", default='2T_100_MC_1_model')

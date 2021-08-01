@@ -24,7 +24,7 @@ class bcolors:   #We use it for the interface
     UNDERLINE = '\033[4m'
 
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-parser = argparse.ArgumentParser(description='select cut parameters')
+parser = argparse.ArgumentParser(description='This script takes preselected 2-track seeds from the previous step and decorates them with additional information such as DOCA and opening angle.')
 parser.add_argument('--Mode',help="Running Mode: Reset(R)/Continue(C)", default='C')
 
 ######################################## Set variables  #############################################################
