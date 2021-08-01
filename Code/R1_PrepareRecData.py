@@ -38,7 +38,7 @@ for c in config:
     if c[0]=='EOS_DIR':
         EOS_DIR=c[1]
 csv_reader.close()
-output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
+output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
 import sys
 sys.path.insert(1, AFS_DIR+'/Code/Utilities/')
 import Utility_Functions as UF
@@ -122,6 +122,6 @@ new_combined_data=new_combined_data.rename(columns={PM.x: "x"})
 new_combined_data=new_combined_data.rename(columns={PM.y: "y"})
 new_combined_data=new_combined_data.rename(columns={PM.z: "z"})
 new_combined_data.to_csv(output_file_location,index=False)
-print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"The track data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
+print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 exit()

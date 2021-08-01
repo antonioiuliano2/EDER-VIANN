@@ -48,8 +48,7 @@ import Parameters as PM #This is where we keep framework global parameters
 MaxTracksPerJob = PM.MaxTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
-#output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"######################     Initialising EDER-VIANN fake seed module             ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -78,19 +77,19 @@ if Mode=='R':
          print(UF.TimeStamp(),'OK, continuing then...')
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateFakeDecBeforeSeedsCleanUp(AFS_DIR, EOS_DIR)
+      UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E6', ['E6_DEC_FAKE_SEEDS'], "SoftUsed == \"EDER-VIANN-E6\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
             for f in range(0,1000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E5_E6_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               if os.path.isfile(new_output_file_location):
                job_details=[(j+1),(sj+1),f,AFS_DIR,EOS_DIR]
                UF.SubmitDecorateFakeSeedsJobsCondor(job_details)
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
    print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
-   test_file=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_FAKE_SET_1.csv'
+   test_file=EOS_DIR+'/EDER-VIANN/Data/REC_SET/E6_DEC_FAKE_SEEDS_1.csv'
    if os.path.isfile(test_file):
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"The process has been completed before, if you want to restart, please rerun with '--Mode R' option"+bcolors.ENDC)
@@ -100,8 +99,8 @@ if Mode=='C':
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
            for f in range (0,1000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FAKE_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E5_E6_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E6_DEC_FAKE_SEEDS_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               job_details=[(j+1),(sj+1),f,AFS_DIR,EOS_DIR]
               if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  bad_pop.append(job_details)
@@ -124,10 +123,10 @@ if Mode=='C':
    else:
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateFakeDecSeedsCleanUp(AFS_DIR, EOS_DIR)
+       UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E6', ['E5_E6'], "SoftUsed == \"EDER-VIANN-E6\"")
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"Fake 2-track decoration is completed"+bcolors.ENDC)
-
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 #End of the script
 
 

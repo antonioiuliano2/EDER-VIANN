@@ -52,8 +52,7 @@ import Parameters as PM #This is where we keep framework global parameters
 MaxEvalTracksPerJob = PM.MaxEvalTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SET.csv'
-#output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E7_KALMAN_REC_VERTICES.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"######################     Initialising EDER-VIANN Vertexing module             ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -77,18 +76,18 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateDecorateKalmanCleanUp(AFS_DIR, EOS_DIR)
+      UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E9', ['E9_E9','E9_KALMAN_REC_SEEDS'], "SoftUsed == \"EDER-VIANN-E9\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for sj in range(0,int(SubSets)):
             for f in range(0,10000):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E8_E9_RawSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
              if os.path.isfile(new_output_file_location):
                job_details=[(sj+1),f,AFS_DIR,EOS_DIR]
                UF.SubmitDecorateKalmanSeedsJobsCondor(job_details)
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
    print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
-   test_file=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_DEC_SET.csv'
+   test_file=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_KALMAN_REC_SEEDS.csv'
    if os.path.isfile(test_file):
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"The process has been completed before, if you want to restart, please rerun with '--Mode R' option"+bcolors.ENDC)
@@ -97,9 +96,9 @@ if Mode=='C':
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
 
    for sj in range(0,int(SubSets)):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_RAW_SET_'+str(sj+1)+'_'+str(f)+'.csv'
+           for f in range(0,1000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E8_E9_RawSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_E9_DecoratedSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
               job_details=[(sj+1),f,AFS_DIR,EOS_DIR]
               if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  bad_pop.append(job_details)
@@ -123,8 +122,8 @@ if Mode=='C':
            for f in range(0,10000):
              progress=int(round((float(sj)/float(int(SubSets)))*100,0))
              print("Collating the results, progress is ",progress,' %', end="\r", flush=True)
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
-             required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_RAW_SET_'+str(sj+1)+'_'+str(f)+'.csv'
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E8_E9_RawSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
+             required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_E9_DecoratedSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
              if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
              elif os.path.isfile(required_output_file_location):
@@ -136,7 +135,7 @@ if Mode=='C':
                     base_data=pd.concat(frames)
        Records=len(base_data.axes[0])
        print(UF.TimeStamp(),'Set contains', Records, '2-track vertices',bcolors.ENDC)
-       output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_DEC_SET.csv'
+       output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_KALMAN_REC_SEEDS.csv'
        base_data["Seed_ID"]= ['-'.join(sorted(tup)) for tup in zip(base_data['Track_1'], base_data['Track_2'])]
        base_data.drop_duplicates(subset="Seed_ID",keep='first',inplace=True)
        base_data.drop(base_data.index[base_data['Track_1'] == base_data['Track_2']], inplace = True)
@@ -149,10 +148,10 @@ if Mode=='C':
        print(UF.TimeStamp(),'Set compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
        base_data.to_csv(output_file_location,index=False)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateFullDecorateKalmanCleanUp(AFS_DIR, EOS_DIR)
-       print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"2-track vertex evaluation set ",bcolors.OKBLUE+output_file_location+bcolors.ENDC," is ready"+bcolors.ENDC)
-
+       UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E9', ['E9_E9','E8_E9'], "SoftUsed == \"EDER-VIANN-E9\"")
+       print(bcolors.HEADER+"#################################################################################################################"+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"2-track vertex evaluation set ",bcolors.OKBLUE+output_file_location+bcolors.ENDC, bcolors.OKGREEN+ 'is ready for the evaluation'+bcolors.ENDC)
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 #End of the script
 
 

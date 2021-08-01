@@ -24,12 +24,12 @@ class bcolors:   #We use it for the interface
     UNDERLINE = '\033[4m'
 
 #Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
-#parser = argparse.ArgumentParser(description='select cut parameters')
-#parser.add_argument('--Mode',help="Running Mode: Reset(R)/Continue(C)", default='C')
-
+parser = argparse.ArgumentParser(description='select cut parameters')
+parser.add_argument('--Acceptance',help="Minimum acceptance for the track", default='0.5')
+parser.add_argument('--DataCut',help="In how many chunks would you like to split data?", default='30')
 ######################################## Set variables  #############################################################
-#args = parser.parse_args()
-#Mode=args.Mode
+args = parser.parse_args()
+Acceptance=float(args.Acceptance)
 
 
 
@@ -57,21 +57,40 @@ print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..
 FileCounter=0
 FileCounterContinue=True
 VertexPool=[]
-while FileCounterContinue:
-    FileCounter+=1
-    input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REC_SET_'+str(FileCounter)+'.csv'
-    if os.path.isfile(input_file_location):
-              print(UF.TimeStamp(), "Analysing file",bcolors.OKBLUE+input_file_location+bcolors.ENDC)
+VertexPool.append(['Track_List','VX_X','VX_Y','VX_Z','VX_FIT','VX_ID'])
+for i in range(0,int(args.DataCut)):
+              FileCounter+=1
+              input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R4_REC_SEEDS.csv'
+              print(UF.TimeStamp(), "Analysing set",i+1)
               csv_read_file=open(input_file_location,"r")
               csv_read = csv.reader(csv_read_file, delimiter=',')
               data=list(csv_read)
               csv_reader.close()
               TrackPosition=[]
+              Vx_Fit_Pos=0
+              for c in range(len(data[0])):
+                  if ('VX_FIT' in data[0][c]):
+                      Vx_Fit_Pos=c
               for c in range(len(data[0])):
                   if ('Track_' in data[0][c]):
                       TrackPosition.append(c)
-              print(UF.TimeStamp(), "Restructuring the data...")
+
+              print(UF.TimeStamp(), "Stripping off the seeds with low acceptance...")
+              new_data=[]
               for seed in data[1:]:
+                  if float(seed[Vx_Fit_Pos])>=Acceptance:
+                      new_data.append(seed)
+              del data
+              data=new_data
+              del new_data
+              gc.collect()
+              length=len(data[1:])
+              segment=int(round(math.ceil(length/int(args.DataCut)),0))
+              data=data[1:]
+              data=data[(i*segment):((i+1)*segment)]
+              print(UF.TimeStamp(), "Restructuring the data...")
+              for seed in data:
+
                   seed_container=[]
                   index_offset=0
                   for track in TrackPosition:
@@ -91,8 +110,11 @@ while FileCounterContinue:
                   if SeedCounter>=len(data)-1:
                       SeedCounterContinue=False
                       break
+                  progress=round((float(SeedCounter)/float(len(data)))*100,0)
+                  print(UF.TimeStamp(),'progress is ',progress,' %', end="\r", flush=True) #Progress display
                   SubjectSeed=data[SeedCounter]
                   SubjectHit=False
+                  iter=0
                   for ObjectSeed in data[SeedCounter+1:]:
                       if UF.CheckSeedsOverlap(SubjectSeed,ObjectSeed):
                             ObjectSeed[0]+=SubjectSeed[0]
@@ -107,10 +129,7 @@ while FileCounterContinue:
                   if SubjectHit==False:
                       SeedCounter+=1
               print(str(InitialDataLength), "2-track vertices were merged into", str(len(data)-1), 'vertices with higher multiplicity...')
-              VertexPool+=data[1:]
-    else:
-              FileCounterContinue=False
-
+              VertexPool+=data
 print(UF.TimeStamp(), "Initiating the global vertex merging...")
 del data
 gc.collect()
@@ -121,6 +140,8 @@ while SeedCounterContinue:
     if SeedCounter==len(VertexPool)-1:
                       SeedCounterContinue=False
                       break
+    progress=round((float(SeedCounter)/float(len(VertexPool)))*100,0)
+    print(UF.TimeStamp(),'progress is ',progress,' %', end="\r", flush=True) #Progress display
     SubjectSeed=VertexPool[SeedCounter]
     SubjectHit=False
     for ObjectSeed in VertexPool[SeedCounter+1:]:
@@ -137,16 +158,17 @@ while SeedCounterContinue:
     if SubjectHit==False:
                       SeedCounter+=1
 print(str(InitialDataLength), "vertices from different files were merged into", str(len(VertexPool)-1), 'vertices with higher multiplicity...')
-for v in range(len(VertexPool)):
+for v in range(1,len(VertexPool)):
     VertexPool[v][1]/=VertexPool[v][5]
     VertexPool[v][2]/=VertexPool[v][5]
     VertexPool[v][3]/=VertexPool[v][5]
     VertexPool[v][4]/=VertexPool[v][5]
     VertexPool[v][5]=v
-output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_OUT.csv'
+output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R5_REC_VERTICES.csv'
 
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), "Saving the results into the file",bcolors.OKBLUE+output_file_location+bcolors.ENDC)
 UF.LogOperations(output_file_location,'StartLog',VertexPool)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(),bcolors.OKGREEN+'The vertex merging has been completed..'+bcolors.ENDC)
+print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)

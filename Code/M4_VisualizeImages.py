@@ -27,7 +27,7 @@ parser.add_argument('--PlotType',help="Enter plot type: XZ/YZ/3D", default='XZ')
 parser.add_argument('--Predict',help="USe the model to predict the outcome: Y/N ?", default='N')
 parser.add_argument('--Type',help="Please enter the sample type: Val or number for the training set", default='1')
 parser.add_argument('--Label',help="Which labels would you like to see: 'ANY/Fake/Truth", default='ANY')
-parser.add_argument('--ModelName',help="Name of the model", default='1_vx_model')
+parser.add_argument('--ModelName',help="Name of the model", default='2T_100_MC_1_model')
 ########################################     Main body functions    #########################################
 args = parser.parse_args()
 SeedNo=int(args.Images)
@@ -68,9 +68,9 @@ print(bcolors.HEADER+"#########################                 PhD Student at U
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 if args.Type=='Val':
- input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VALIDATION_SET.csv'
+ input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_VALIDATION_SET.csv'
 else:
- input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET_'+args.Type+'.csv'
+ input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_TRAIN_SET_'+args.Type+'.csv'
 #print(UF.TimeStamp(),'Loading data from ',bcolors.OKBLUE+input_file_location+bcolors.ENDC)
 if args.PlotType=='XZ':
   InitialData=[]

@@ -92,7 +92,7 @@ if Track=='FEDRA':
      data=pd.merge(data, ValidEvents, how="inner", on=['Track_ID'])
      final_rows=len(data.axes[0])
      print(UF.TimeStamp(),'The sliced data has ',final_rows,' hits')
- output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
+ output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E1_TRACKS.csv'
 
 elif Track=='MC':
  data=pd.read_csv(input_file_location,
@@ -123,7 +123,7 @@ elif Track=='MC':
      final_rows=len(data.axes[0])
      print(UF.TimeStamp(),'The sliced data has ',final_rows,' hits')
  data=data.drop([PM.MC_Event_ID],axis=1)
- output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
+ output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E1_TRACKS.csv'
 else:
   print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
   print(UF.TimeStamp(), bcolors.FAIL+"No valid option for track reconstruction source has been chosen (FEDRA/MC), aborting the script..."+bcolors.ENDC)
@@ -144,4 +144,5 @@ new_combined_data=new_combined_data.rename(columns={PM.z: "z"})
 new_combined_data.to_csv(output_file_location,index=False)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"The track data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
+print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 exit()

@@ -49,7 +49,7 @@ import Parameters as PM #This is where we keep framework global parameters
 MaxTracksPerJob = PM.MaxEvalTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SET.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E1_TRACKS.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"####################     Initialising EDER-VIANN Evaluation Seed Creation module     ###################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -72,9 +72,7 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateEvalSeedsCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateDecorateCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateFullDecorateCleanUp(AFS_DIR, EOS_DIR)
+      UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E2', ['E2_E2','E2_E3'], "SoftUsed == \"EDER-VIANN-E2\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for sj in range(0,int(SubSets)):
            job_details=[(sj+1),MaxTracksPerJob,AFS_DIR,EOS_DIR]
@@ -85,8 +83,8 @@ if Mode=='C':
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for sj in range(0,int(SubSets)):
            job_details=[(sj+1),MaxTracksPerJob,AFS_DIR,EOS_DIR]
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SEED_SET_'+str(sj+1)+'.csv'
-           output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SEED_SET_'+str(sj+1)+'_RES.csv'
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E2_E2_RawSeeds_'+str(sj+1)+'.csv'
+           output_result_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E2_E2_RawSeeds_'+str(sj+1)+'_RES.csv'
            if os.path.isfile(output_result_location)==False:
               bad_pop.append(job_details)
    if len(bad_pop)>0:
@@ -107,7 +105,7 @@ if Mode=='C':
        print(UF.TimeStamp(),bcolors.OKGREEN+'All HTCondor Seed Creation jobs have finished'+bcolors.ENDC)
        print(UF.TimeStamp(),'Collating the results...')
        for sj in range(0,int(SubSets)):
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/EVAL_SEED_SET_'+str(sj+1)+'.csv'
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E2_E2_RawSeeds_'+str(sj+1)+'.csv'
            result=pd.read_csv(output_file_location,names = ['Track_1','Track_2'])
            Records=len(result.axes[0])
            print(UF.TimeStamp(),'Subset', str(sj+1), 'contains', Records, 'seeds',bcolors.ENDC)
@@ -123,13 +121,14 @@ if Mode=='C':
            print(UF.TimeStamp(),'Subset', str(sj+1), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
            fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
            for f in range(0,fractions):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_CANDIDATE_SET_'+str(sj+1)+'_'+str(f)+'.csv'
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E2_E3_RawSeeds_'+str(sj+1)+'_'+str(f)+'.csv'
              result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
 
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateEvalSeedsCleanUp(AFS_DIR, EOS_DIR)
+       UF.EvalCleanUp(AFS_DIR, EOS_DIR, 'E2', ['E2_E2'], "SoftUsed == \"EDER-VIANN-E2\"")
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"Seed generation is completed"+bcolors.ENDC)
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 
 #End of the script
 

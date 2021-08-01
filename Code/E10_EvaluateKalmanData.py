@@ -38,10 +38,15 @@ import Utility_Functions as UF #This is where we keep routine utility functions
 import Parameters as PM #This is where we keep framework global parameters
 ########################################     Preset framework parameters    #########################################
  #The Separation bound is the maximum Euclidean distance that is allowed between hits in the beggining of Seed tracks.
+#Setting the parser - this script is usually not run directly, but is used by a Master version Counterpart that passes the required arguments
+parser = argparse.ArgumentParser(description='select cut parameters')
+parser.add_argument('--sf',help="Please choose the input file", default=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E9_KALMAN_REC_SEEDS.csv')
+parser.add_argument('--of',help="Please choose the evaluation file (has to match the same geometrical domain and type of the track as the subject", default=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E3_TRUTH_SEEDS.csv')
+args = parser.parse_args()
 MaxTracksPerJob = PM.MaxTracksPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_FEDRA_DEC_SET.csv'
-input_eval_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/VX_EVAL_DEC_SET.csv'
+input_file_location=args.sf
+input_eval_file_location=args.of
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"######################     Initialising EDER-VIANN Evaluation module             ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -77,6 +82,7 @@ MatchedVertices=RemainingRecVertices
 FakeVertices=(CurrentRecVertices-RemainingRecVertices)
 Recall=round((float(MatchedVertices)/float(TotalMCVertices))*100,2)
 Precision=round((float(MatchedVertices)/float(TotalRecVertices))*100,2)
+F1_Score=round(2*((Recall*Precision)/(Recall+Precision)),2)
 print(UF.TimeStamp(), bcolors.OKGREEN+'FEDRA evaluation has been finished'+bcolors.ENDC)
 
 print(bcolors.HEADER+"#########################################  Results  #########################################"+bcolors.ENDC)
@@ -85,7 +91,8 @@ print('Total 2-track combinations were reconstructed by FEDRA:',TotalRecVertices
 print('FEDRA correct combinations were reconstructed:',MatchedVertices)
 print('Therefore the recall of the current model is',bcolors.BOLD+str(Recall), '%'+bcolors.ENDC)
 print('And the precision of the current model is',bcolors.BOLD+str(Precision), '%'+bcolors.ENDC)
-
+print('The F1 score of the current model is',bcolors.BOLD+str(F1_Score), '%'+bcolors.ENDC)
+print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 #End of the script
 
 

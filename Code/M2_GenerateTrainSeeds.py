@@ -60,8 +60,7 @@ NV=PM.MC_NV_VX_ID
 MaxTracksPerJob = PM.MaxTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET.csv'
-#output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M1_TRACKS.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"####################     Initialising EDER-VIANN Train Seed Creation module          ###################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -89,9 +88,7 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateTrainSeedsCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateFullImageCleanUp(AFS_DIR, EOS_DIR)
-      UF.CreateImageCleanUp(AFS_DIR, EOS_DIR)
+      UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M2', ['M2_M2','M2_M3'], "SoftUsed == \"EDER-VIANN-M2\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
@@ -104,8 +101,8 @@ if Mode=='C':
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
            job_details=[(j+1),(sj+1),data[j][0],SI_1,SI_2,SI_3,SI_4,SI_5,SI_6,SI_7,MaxTracksPerJob,AFS_DIR,EOS_DIR,NV]
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
-           output_result_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SEED_SET_'+str(j+1)+'_'+str(sj+1)+'_RES.csv'
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M2_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'.csv'
+           output_result_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M2_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_RES.csv'
            if os.path.isfile(output_result_location)==False:
               bad_pop.append(job_details)
    if len(bad_pop)>0:
@@ -127,7 +124,7 @@ if Mode=='C':
        print(UF.TimeStamp(),'Collating the results...')
        for j in range(0,len(data)): #//Temporarily measure to save space
         for sj in range(0,int(data[j][2])):
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SEED_SET_'+str(j+1)+'_'+str(sj+1)+'.csv'
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M2_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'.csv'
            result=pd.read_csv(output_file_location,names = ['Track_1','Track_2', 'Seed_Type'])
            Records=len(result.axes[0])
            print(UF.TimeStamp(),'Set',str(j+1),'and subset', str(sj+1), 'contains', Records, 'seeds',bcolors.ENDC)
@@ -143,14 +140,14 @@ if Mode=='C':
            print(UF.TimeStamp(),'Set',str(j+1),'and subset', str(sj+1), 'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
            fractions=int(math.ceil(Records_After_Compression/MaxSeedsPerJob))
            for f in range(0,fractions):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              result[(f*MaxSeedsPerJob):min(Records_After_Compression,((f+1)*MaxSeedsPerJob))].to_csv(new_output_file_location,index=False)
            os.unlink(output_file_location)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       UF.CreateTrainSeedsCleanUp(AFS_DIR, EOS_DIR)
+       UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M2', ['M2_M2'], "SoftUsed == \"EDER-VIANN-M2\"")
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"Seed generation is completed"+bcolors.ENDC)
-
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 #End of the script
 
 

@@ -88,7 +88,7 @@ if SliceData:
      data=pd.merge(data, ValidEvents, how="inner", on=['Track_ID'])
      final_rows=len(data.axes[0])
      print(UF.TimeStamp(),'The sliced data has ',final_rows,' hits')
-output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/FEDRA_SET.csv'
+output_file_location=EOS_DIR+'/EDER-VIANN/Data/TEST_SET/E7_KALMAN_REC_VERTICES.csv'
 print(UF.TimeStamp(),'Removing 1 hit tracks...')
 track_no_data=data.groupby(['Track_ID'],as_index=False).count()
 track_no_data=track_no_data.drop([PM.y,PM.z,'Mother_ID'],axis=1)
@@ -103,6 +103,7 @@ new_combined_data=new_combined_data.rename(columns={PM.x: "x"})
 new_combined_data=new_combined_data.rename(columns={PM.y: "y"})
 new_combined_data=new_combined_data.rename(columns={PM.z: "z"})
 new_combined_data.to_csv(output_file_location,index=False)
-print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
+print(bcolors.HEADER+"################################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"The track data has been created successfully and written to"+bcolors.ENDC, bcolors.OKBLUE+output_file_location+bcolors.ENDC)
+print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 exit()

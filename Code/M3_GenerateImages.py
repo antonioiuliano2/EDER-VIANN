@@ -64,10 +64,9 @@ MaxZ=PM.MaxZ
 MaxTracksPerJob = PM.MaxTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET.csv'
-#output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/SEED_SET_'+Set+'_'+str(Subset)+'.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M1_TRACKS.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
-print(bcolors.HEADER+"######################     Initialising EDER-VIANN Vertexing module             ########################"+bcolors.ENDC)
+print(bcolors.HEADER+"######################     Initialising EDER-VIANN Image Generation module      ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################                 PhD Student at UCL                   #########################"+bcolors.ENDC)
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
@@ -95,19 +94,19 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateFullImageCleanUp(AFS_DIR, EOS_DIR)
+      UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M3', ['M3_M3','M3_VALIDATION','M3_TRAIN'], "SoftUsed == \"EDER-VIANN-M3\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-            for f in range(0,10000):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+            for f in range(0,1000):
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              if os.path.isfile(new_output_file_location):
               job_details=[(j+1),(sj+1),f,VO_max_Z,VO_min_Z,VO_T,MaxDoca,resolution,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
               UF.SubmitImageJobsCondor(job_details)
       print(UF.TimeStamp(), bcolors.OKGREEN+'All jobs have been submitted, please rerun this script with "--Mode C" in few hours'+bcolors.ENDC)
 if Mode=='C':
    print(UF.TimeStamp(),'Checking results... ',bcolors.ENDC)
-   test_file=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VALIDATION_SET.csv'
+   test_file=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_VALIDATION_SET.csv'
    if os.path.isfile(test_file):
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"The process has been completed before, if you want to restart, please rerun with '--Mode R' option"+bcolors.ENDC)
@@ -116,9 +115,9 @@ if Mode=='C':
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+           for f in range(0,1000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_M3_Images_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               job_details=[(j+1),(sj+1),f,VO_max_Z,VO_min_Z,VO_T,MaxDoca,resolution,MaxX,MaxY,MaxZ,AFS_DIR,EOS_DIR]
               if os.path.isfile(required_output_file_location)!=True  and os.path.isfile(new_output_file_location):
                  bad_pop.append(job_details)
@@ -143,9 +142,9 @@ if Mode=='C':
        print(UF.TimeStamp(),'Collating the results...')
        for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_RAW_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+           for f in range(0,1000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M2_M3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_M3_Images_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
               elif os.path.isfile(required_output_file_location):
@@ -175,7 +174,7 @@ if Mode=='C':
         try:
          Records=len(base_data.axes[0])
          print(UF.TimeStamp(),'Set',str(j+1),'contains', Records, 'images',bcolors.ENDC)
-         output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_COLLATED_SET_'+str(j+1)+'.csv'
+         output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_M3_CondensedImages_'+str(j+1)+'.csv'
          base_data.drop_duplicates(subset="Seed_ID_temp",keep='first',inplace=True)
          base_data.drop(["Seed_ID_temp"],axis=1,inplace=True)
          TrueSeeds+=base_data.groupby(['Label']).size()['[1]']
@@ -208,12 +207,11 @@ if Mode=='C':
                RequiredTrueSeeds=int(round((RequiredFakeSeeds/(1.0-float(args.LabelMix)))-RequiredFakeSeeds,0))
        TrueSeedCorrection=RequiredTrueSeeds/TrueSeeds
        FakeSeedCorrection=RequiredFakeSeeds/(TotalImages-TrueSeeds)
-       print(TrueSeedCorrection,FakeSeedCorrection)
        for j in range(0,len(data)):
           progress=int( round( (float(j)/float(len(data))*100),0)  )
           print(UF.TimeStamp(),"Sampling image from the collated data, progress is ",progress,' % of seeds generated')
           try:
-           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VX_IMAGE_COLLATED_SET_'+str(j+1)+'.csv'
+           output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_M3_CondensedImages_'+str(j+1)+'.csv'
            base_data=pd.read_csv(output_file_location,names=['Seed_ID','Track','Label'])
            CurrentTrueSeeds=base_data.groupby(['Label']).size()['[1]']
            CurrentFakeSeeds=base_data.groupby(['Label']).size()['[0]']
@@ -247,20 +245,21 @@ if Mode=='C':
        gc.collect()
        ValidationSampleSize=int(round(min((len(OldExtracted.axes[0])*float(args.ValidationSize)),PM.MaxValSampleSize),0))
        OldExtracted = OldExtracted.sample(frac=1).reset_index(drop=True)
-       output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/VALIDATION_SET.csv'
+       output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_VALIDATION_SET.csv'
        ValExtracted = OldExtracted.sample(n=ValidationSampleSize, random_state=1)
        ValExtracted.to_csv(output_file_location,index=False,header=False)
-       print(UF.TimeStamp(), bcolors.OKGREEN+"Validation Set has been saved at ",bcolors.OKBLUE+output_file_location+bcolors.ENDC,'file...'+bcolors.ENDC)
+       print(UF.TimeStamp(), bcolors.OKGREEN+"Validation Set has been saved at ",bcolors.OKBLUE+output_file_location+bcolors.ENDC,bcolors.OKGREEN+'file...'+bcolors.ENDC)
        OldExtracted=OldExtracted.drop(ValExtracted.index)
        No_Train_Files=int(math.ceil(len(OldExtracted.axes[0])/PM.MaxTrainSampleSize))
        for SC in range(0,No_Train_Files):
-         output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/TRAIN_SET_'+str(SC+1)+'.csv'
+         output_file_location=EOS_DIR+'/EDER-VIANN/Data/TRAIN_SET/M3_TRAIN_SET_'+str(SC+1)+'.csv'
          OldExtracted[(SC*PM.MaxTrainSampleSize):min(len(OldExtracted.axes[0]),((SC+1)*PM.MaxTrainSampleSize))].to_csv(output_file_location,index=False,header=False)
-         print(UF.TimeStamp(), bcolors.OKGREEN+"Train Set", str(SC+1) ," has been saved at ",bcolors.OKBLUE+output_file_location+bcolors.ENDC,'file...'+bcolors.ENDC)
-       #UF.CreateImageCleanUp(AFS_DIR, EOS_DIR)
+         print(UF.TimeStamp(), bcolors.OKGREEN+"Train Set", str(SC+1) ," has been saved at ",bcolors.OKBLUE+output_file_location+bcolors.ENDC,bcolors.OKGREEN+'file...'+bcolors.ENDC)
+       UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M3', ['M2_M3','M3_M3'], "SoftUsed == \"EDER-VIANN-M3\"")
        print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
        print(UF.TimeStamp(), bcolors.OKGREEN+"Training and Validation data has been created: you can start working on the model..."+bcolors.ENDC)
-
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
+       exit()
 #End of the script
 
 

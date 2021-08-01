@@ -57,7 +57,7 @@ MaxTracksPerJob = PM.MaxTracksPerJob
 MaxSeedsPerJob = PM.MaxSeedsPerJob
 MaxVxPerJob=PM.MaxVxPerJob
 #Specifying the full path to input/output files
-input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/REC_SET.csv'
+input_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R1_TRACKS.csv'
 print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
 print(bcolors.HEADER+"######################     Initialising EDER-VIANN Filter Seed module           ########################"+bcolors.ENDC)
 print(bcolors.HEADER+"#########################              Written by Filips Fedotovs              #########################"+bcolors.ENDC)
@@ -85,12 +85,12 @@ if Mode=='R':
 
    if UserAnswer=='Y':
       print(UF.TimeStamp(),'Performing the cleanup... ',bcolors.ENDC)
-      UF.CreateFullFilterSeedCleanUp(AFS_DIR, EOS_DIR)
+      UF.RecCleanUp(AFS_DIR, EOS_DIR, 'R3', ['R3_R3','R3_R4'], "SoftUsed == \"EDER-VIANN-R3\"")
       print(UF.TimeStamp(),'Submitting jobs... ',bcolors.ENDC)
       for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-            for f in range(0,10000):
-             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+            for f in range(0,1000):
+             new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R2_R3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
              if os.path.isfile(new_output_file_location):
               job_details=[(j+1),(sj+1),f,VO_T,VO_max_Z,VO_min_Z,MaxDoca,AFS_DIR,EOS_DIR]
               UF.SubmitFilterSeedsJobsCondor(job_details)
@@ -100,9 +100,9 @@ if Mode=='C':
    print(UF.TimeStamp(),'Checking jobs... ',bcolors.ENDC)
    for j in range(0,len(data)):
        for sj in range(0,int(data[j][2])):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REFINED_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+           for f in range(0,1000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R2_R3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R3_R3_FilteredSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               job_details=[(j+1),(sj+1),f,VO_T,VO_max_Z,VO_min_Z,MaxDoca,AFS_DIR,EOS_DIR]
               if os.path.isfile(required_output_file_location)!=True  and os.path.isfile(new_output_file_location):
                  bad_pop.append(job_details)
@@ -125,9 +125,9 @@ if Mode=='C':
        print(UF.TimeStamp(),'Collating the results...')
        for j in range(0,len(data)):
         for sj in range(0,int(data[j][2])):
-           for f in range(0,10000):
-              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
-              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REFINED_CANDIDATE_SET_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+           for f in range(0,1000):
+              new_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R2_R3_RawSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
+              required_output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R3_R3_FilteredSeeds_'+str(j+1)+'_'+str(sj+1)+'_'+str(f)+'.csv'
               if os.path.isfile(required_output_file_location)!=True and os.path.isfile(new_output_file_location):
                  print(UF.TimeStamp(), bcolors.FAIL+"Critical fail: file",required_output_file_location,'is missing, please restart the script with the option "--Mode R"'+bcolors.ENDC)
               elif os.path.isfile(required_output_file_location):
@@ -148,7 +148,7 @@ if Mode=='C':
         Records_After_Compression=len(base_data.axes[0])
         fractions=int(math.ceil(Records_After_Compression/MaxVxPerJob))
         for f in range(0,fractions):
-             output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/VX_REFINED_SET_'+str(j+1)+'_'+str(f+1)+'.csv'
+             output_file_location=EOS_DIR+'/EDER-VIANN/Data/REC_SET/R3_R4_FilteredSeeds_'+str(j+1)+'_'+str(f+1)+'.csv'
              base_data[(f*MaxVxPerJob):min(Records_After_Compression,((f+1)*MaxVxPerJob))].to_csv(output_file_location,index=False)
         if Records>0:
               Compression_Ratio=int((Records_After_Compression/Records)*100)
@@ -156,11 +156,9 @@ if Mode=='C':
               CompressionRatio=0
         print(UF.TimeStamp(),'Set',str(j+1),'compression ratio is ', Compression_Ratio, ' %',bcolors.ENDC)
        print(UF.TimeStamp(),'Cleaning up the work space... ',bcolors.ENDC)
-       exit()
-       UF.CreateFIlterSeedsCleanUp(AFS_DIR, EOS_DIR)
-       print(bcolors.HEADER+"########################################################################################################"+bcolors.ENDC)
+       UF.RecCleanUp(AFS_DIR, EOS_DIR, 'R3', ['R2_R3','R3_R3'], "SoftUsed == \"EDER-VIANN-R3\"")
        print(UF.TimeStamp(), bcolors.OKGREEN+"Seed filtering is completed, you can vertex them now"+bcolors.ENDC)
-
+       print(bcolors.HEADER+"############################################# End of the program ################################################"+bcolors.ENDC)
 #End of the script
 
 
