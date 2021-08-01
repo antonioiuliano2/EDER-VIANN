@@ -126,10 +126,17 @@ Can only be used if there is a data available with MC vertex truth information.
    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
    The output will generate the file E3_TRUTH_SEEDS.csv that contains all seeds that have a common Mother ID. This file has additional information on the Seeds      such as opening angle, DOCA etc. This file is used to assess the perfromance of the EDER-VIANN and FEDRA reconstruction accuracy.
    
+6) python3 E4_EvaluateRecData.py 
+   
+   The script will return the perecision and the recall of the EDER-VIANN reconstruction output
+   The script can be run with option '--Acceptance'  which takes in account only the seeds with probability above the given value (has to be between 0 and 1).
    
    
-   FEDRA Vertex Reconstruction Evaluation -----
-   --Can only be used if there is a data available with FEDRA vertex reconstruction information.
+   
+FEDRA Vertex Reconstruction Evaluation
+--
+Can only be used if there is a data available with FEDRA vertex reconstruction information.
+
 1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f $<your file with reconstructed tracks>
 2) python3 E8_GenerateKalmanSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.)
 3) (After an hour or so) python3 E8_GenerateKalmanSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
