@@ -138,14 +138,68 @@ FEDRA Vertex Reconstruction Evaluation
 Can only be used if there is a data available with FEDRA vertex reconstruction information.
 
 1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f $<your file with reconstructed tracks>
-2) python3 E8_GenerateKalmanSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.)
-3) (After an hour or so) python3 E8_GenerateKalmanSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
-4) E9_DecorateKalmanSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.)
-   (After an hour or so) E9_DecorateKalmanSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
-5) python3 E10_EvaluateKalmanData.py (The script will return the perecision and the recall of the FEDRA reconstruction output)
+
+2) python3 E8_GenerateKalmanSeeds.py --Mode R 
    
--------- EDER-VIANN Model Training ------
-1)  python3 M1_PrepareTrainData.py --Xmin 50000 --Xmax 120000 --Ymin -120000 --Ymax 50000 --Track FEDRA  --f $<your file with reconstructed tracks> (min and max       value arguments can be changed or completely removed if all ECC data to be reconstructed. The X and Y bounds are exclusive (they define the portion of the ECC     data that is not used in training). Track type can be changed to MC if Monte-Carlo truth track reconstruction data is used. The script can take 1-5 minutes       depending on the size of the input file. Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.)
-2)  python3 M2_GenerateTrainSeeds.py --Mode R (The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.)
-3) (After an hour or so) M2_GenerateTrainSeeds.py --Mode C (it will check whether the HTCondor jobs have been completed, if not it will give a warning).
+   The script will send warning, type Y. 
+   The program will send HTCondor jobs and exit.
+   The jobs will take about an hour.
+   
+3) python3 E8_GenerateKalmanSeeds.py --Mode C 
+   
+   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   
+4) E9_DecorateKalmanSeeds.py --Mode R 
+   
+   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.
+   
+5) E9_DecorateKalmanSeeds.py --Mode C 
+   
+   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+
+5) python3 E10_EvaluateKalmanData.py 
+   
+   The script will return the perecision and the recall of the FEDRA reconstruction output.
+   
+EDER-VIANN Model Training
+--
+Can only be used if there is a data available with MC vertex truth information.
+
+1)  python3 M1_PrepareTrainData.py --Xmin 50000 --Xmax 120000 --Ymin -120000 --Ymax 50000 --Track FEDRA  --f $<your file with reconstructed tracks> 
+   
+    min and max value arguments can be changed or completely removed if all ECC data to be used for training. 
+    The X and Y bounds are exclusive (they define the portion of the ECC data that is not used in training). 
+    Track type can be changed to MC if Monte-Carlo truth track reconstruction data is used. 
+    The script can take 1-5 minutes depending on the size of the input file. 
+    Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.
+
+2)  python3 M2_GenerateTrainSeeds.py --Mode R 
+    
+    The script will send warning, type Y. 
+    The program will send HTCondor jobs and exit. 
+    The jobs take about an hour.
+
+3)  M2_GenerateTrainSeeds.py --Mode C 
+    
+    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+
+4)  M3_GenerateImages.py --Mode R 
+    
+    The script will send warning, type Y. 
+    The program will send HTCondor jobs and exit. 
+    The jobs take about an hour.
+
+5)  M3_GenerateImages.py --Mode C 
+    
+    It will check whether the HTCondor jobs have been completed, if not it will give a warning.
   
+6)  python3 M5_TrainModel.py --Mode R
+    
+    The program will send an HTCondor job and exit. 
+    The job takes about 4-5 hours.
+
+6)  python3 M5_TrainModel.py --Mode C
+    
+    It will check whether the HTCondor job has been completed, if not it will give a warning.
+    If the job has been completed the script will ask the user whether he wants to continue (N/Y).
+    The model training performance (loss and accuracy) will be saved in /EDER-VIANN/Models/M5_PERFORMANCE_2T_100_FEDRA_1_model.csv file
