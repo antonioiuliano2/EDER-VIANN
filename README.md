@@ -24,15 +24,19 @@ Installation steps
 
 7) pip3 install psutil
 
-8) go to your home directory on AFS where you would like to install the package
+8) pip3 install 'h5py==2.10.0' --force-reinstall
+   
+   Downgrading h5py in order to make it work with the existing version of the Tensorflow.
 
-9) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
-10) cd EDER-VIANN/
-11) python3 setup.py
-12) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models
+9) go to your home directory on AFS where you would like to install the package
+
+10) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
+11) cd EDER-VIANN/
+12) python3 setup.py
+13) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models
    Has to provide up to 10-100 GB of storage depending on whether particular components of the framework is used. An example of the input is /eos/user/<username      first letter>/<user name> . In theory AFS work location also can be specified but it is not recommended.
-13) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
-14) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
+14) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
+15) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
 
 Additional info
 --
