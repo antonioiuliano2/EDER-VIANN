@@ -6,16 +6,28 @@ This README just serves as a very short user guide, the documentation will be wr
 
 Installation steps
 --
+1) pip3 install --upgrade pip
 
-1) pip3 install tensorflow==1.14.0 --user
-2) pip3 install keras==2.3.1 --user
-3) pip3 install tensorflow-gpu==1.14.0 --user
+   This step is highly recommended in order to avoid possible problems with intallation of other packages.
+
+3) pip3 install tensorflow==1.14.0 --user
+
+4) pip3 install keras==2.3.1 --user
+
+5) pip3 install tensorflow-gpu==1.14.0 --user
+   
    Only required if you have intent to create/train CNN models
-4) go to your home directory on AFS where you would like to install the package
-5) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
-6) cd EDER-VIANN/
-7) python3 setup.py
-8) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models
+
+6) pip3 install pandas
+   
+   Pandas are used extensively in this package for routine data manipulation.
+
+8) go to your home directory on AFS where you would like to install the package
+
+9) git clone https://github.com/FilipsFedotovs/EDER-VIANN/
+10) cd EDER-VIANN/
+11) python3 setup.py
+12) The installation will require another directory, please enter the location on EOS where you would like to keep data and the models
    Has to provide up to 10-100 GB of storage depending on whether particular components of the framework is used. An example of the input is /eos/user/<username      first letter>/<user name> . In theory AFS work location also can be specified but it is not recommended.
 9) The installer will copy and analyse existing data and the pre-trained model, it might take 5-10 minutes.
 10) if the message 'EDER-VIANN setup is successfully completed' is displayed, it means that the package is ready for work
@@ -25,7 +37,7 @@ Additional info
 1) It is recomended to run those processes on lxplus in the tmux shell as some scripts can take up to several hours to execute.
 2) The script name prefixes indicate what kind of opeartions this script perform: R is for acrual reconstruction routines, E for evaluation and M for model cration and training.
 3) In general the numbers in prefixes reflect the order at which scripts have to be executed e.g: R1, R2,R3...
-4) --help argument provides all the available run arguments of a script
+4) --help argument provides all the available run arguments of a script and its purpose.
 5) The output of each script has the same prefix as the script that generates it. If script generates a temporary output for another script it will have the double prefix e.g: R2_R3 etc.
 6) The files that are the final output have names with capital letters only such as: R5_REC_VERTICES
    Those files are not deleted after execution. If not all letters in the file are capitalised that means that the file is temporary and will be eventually deleted by the package once it is not needed anymore.
@@ -65,11 +77,14 @@ Vertex Reconstruction
 
 8) python3 R1_PrepareRecData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
    
-   min and max value arguments can be changed or completely removed if all ECC data to be reconstructed. Track type can be changed to MC if Monte-Carlo truth        track reconstruction data is used. The script can take 1-5 minutes depending on the size of the input file. Once it finish it will give the message "The track    data has been created successfully and written to ....' and exit.
+   Purpose: This script prepares the reconstruction data for EDER-VIANN vertexing routines by using the custom file with track resonstruction data
+   
+   FYI: min and max value arguments can be changed or completely removed if all ECC data to be reconstructed. Track type can be changed to MC if Monte-Carlo truth        track reconstruction data is used. The script can take 1-5 minutes depending on the size of the input file. Once it finish it will give the message "The          track    data has been created successfully and written to ....' and exit.
 
 9) python3 R2_GenerateSeeds.py --Mode R
    
-   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
+   Purpose: This script selects and prepares 2-track seed candidates that could be used for vertexing. The seeds are subject to distance cuts
+   FYI: The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
 
 10) python3 R2_GenerateSeeds.py --Mode C
     
