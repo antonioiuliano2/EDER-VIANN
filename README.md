@@ -1,8 +1,8 @@
 # EDER-VIANN
-Emulsion Data Event Reconstruction - Vertex Identification by using Artificial Neural Networks
-Release 1
+Emulsion Data Event Reconstruction - Vertex Identification by using Artificial Neural Networks.
+Release 1.
 
-This README just serves as a very short user guide, the documentation will be written much later
+This README just serves as a very short user guide, the documentation will be written much later.
 
 Installation steps
 --
