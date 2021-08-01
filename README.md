@@ -124,31 +124,39 @@ Can only be used if there is a data available with MC vertex truth information.
    
 1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f $<your file with reconstructed tracks> 
    
-   min and max value arguments have to match those that were used in for previous phase in Step 8).
+   Purpose: This script prepares the MC tracking data for EDER-VIANN vertexing evaluation routines.
+   FYI: min and max value arguments have to match those that were used in for previous phase in Step 8.
    The script can take 1-5 minutes depending on the size of the input file.
    Once it finish it will give the message "The track data has been created successfully and written to ....' and exit.
 
 2) python3 E2_GenerateEvalSeeds.py --Mode C 
    
+   Purpose: This script selects and prepares 2-track seeds that have a common Mother particle.
    The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
 
 3) python3 E2_GenerateEvalSeeds.py --Mode C 
    
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   FYI: It will check whether the HTCondor jobs have been completed, if not it will give a warning.
    If the jobs are completed it will remove duplicates from the seeds and generate the following message: "Seed generation is completed".
    
 4) python3 E3_DecorateEvalSeeds.py --Mode R 
    
-   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs take about an hour.
+   Purpose: This script takes preselected 2-track seeds and decorates them with additional information such as DOCA and opening angle.
+   FYI: The script will send warning, type Y. 
+   The program will send HTCondor jobs and exit. 
+   The jobs take about an hour.
    
 5) python3 E3_DecorateEvalSeeds.py --Mode C
    
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
-   The output will generate the file E3_TRUTH_SEEDS.csv that contains all seeds that have a common Mother ID. This file has additional information on the Seeds      such as opening angle, DOCA etc. This file is used to assess the perfromance of the EDER-VIANN and FEDRA reconstruction accuracy.
+   FYI: It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   The output will generate the file E3_TRUTH_SEEDS.csv that contains all seeds that have a common Mother ID. 
+   This file has additional information on the Seeds such as opening angle, DOCA etc. 
+   This file is used to assess the perfromance of the EDER-VIANN and FEDRA reconstruction accuracy.
    
 6) python3 E4_EvaluateRecData.py 
    
-   The script will return the perecision and the recall of the EDER-VIANN reconstruction output
+   Purpose: This script compares the ouput of the previous step with the output of EDER-VIANN reconstructed data to calculate reconstruction perfromance.
+   FYI: The script will return the perecision and the recall of the EDER-VIANN reconstruction output
    The script can be run with option '--Acceptance'  which takes in account only the seeds with probability above the given value (has to be between 0 and 1).
    
    
@@ -158,28 +166,34 @@ FEDRA Vertex Reconstruction Evaluation
 Can only be used if there is a data available with FEDRA vertex reconstruction information.
 
 1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f $<your file with reconstructed tracks>
+   Purpose: This script prepares the KALMAN generated tracking and vertexed data for KALMAN evaluation routines
 
 2) python3 E8_GenerateKalmanSeeds.py --Mode R 
    
-   The script will send warning, type Y. 
+   Purpose: This script selects and prepares 2-track seeds that have a common Mother particle according to the Kalman software.
+   FYI: The script will send warning, type Y. 
    The program will send HTCondor jobs and exit.
    The jobs will take about an hour.
    
 3) python3 E8_GenerateKalmanSeeds.py --Mode C 
    
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   FYI: It will check whether the HTCondor jobs have been completed, if not it will give a warning.
    
 4) E9_DecorateKalmanSeeds.py --Mode R 
    
-   The script will send warning, type Y. The program will send HTCondor jobs and exit. The jobs will take about an hour.
+   Purpose: This script takes preselected 2-track seeds from the previous step and decorates them with additional information such as DOCA and opening angle.
+   FYI: The script will send warning, type Y. 
+   The program will send HTCondor jobs and exit. 
+   The jobs will take about an hour.
    
 5) E9_DecorateKalmanSeeds.py --Mode C 
    
-   It will check whether the HTCondor jobs have been completed, if not it will give a warning.
+   FYI: It will check whether the HTCondor jobs have been completed, if not it will give a warning.
 
 5) python3 E10_EvaluateKalmanData.py 
    
-   The script will return the perecision and the recall of the FEDRA reconstruction output.
+   Purpose: This script compares the ouput of the previous step with the output of MC truth to calculate reconstruction perfromance.
+   FYI: The script will return the perecision and the recall of the FEDRA reconstruction output.
    
 EDER-VIANN Model Training
 --
