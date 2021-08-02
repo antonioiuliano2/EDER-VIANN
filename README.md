@@ -81,7 +81,7 @@ Vertex Reconstruction
 
 7) kinit your<username>@CERN.CH -l 24h00m
 
-8) python3 R1_PrepareRecData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f <your file with reconstructed tracks> 
+8) python3 R1_PrepareRecData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f (your file with reconstructed tracks) 
    
    Purpose: This script prepares the reconstruction data for EDER-VIANN vertexing routines by using the custom file with track resonstruction data
    
@@ -128,7 +128,7 @@ EDER-VIANN Vertex Reconstruction Evaluation
 --
 Can only be used if there is a data available with MC vertex truth information.
    
-1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f <your file with reconstructed tracks> 
+1) python3 E1_PrepareEvalData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --Track FEDRA --f (your file with reconstructed tracks)
    
    Purpose: This script prepares the MC tracking data for EDER-VIANN vertexing evaluation routines.
    FYI: min and max value arguments have to match those that were used in for previous phase in Step 8.
@@ -171,7 +171,7 @@ FEDRA Vertex Reconstruction Evaluation
 --
 Can only be used if there is a data available with FEDRA vertex reconstruction information.
 
-1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f <your file with reconstructed tracks>
+1) python3 E7_PrepareKalmanData.py --Xmin 50000 --Xmax 60000 --Ymin 50000 --Ymax 60000 --f (your file with reconstructed tracks)
    Purpose: This script prepares the KALMAN generated tracking and vertexed data for KALMAN evaluation routines
 
 2) python3 E8_GenerateKalmanSeeds.py --Mode R 
@@ -205,7 +205,7 @@ EDER-VIANN Model Training
 --
 Can only be used if there is a data available with MC vertex truth information.
 
-1)  python3 M1_PrepareTrainData.py --Xmin 50000 --Xmax 120000 --Ymin -120000 --Ymax 50000 --Track FEDRA  --f <your file with reconstructed tracks> 
+1)  python3 M1_PrepareTrainData.py --Xmin 50000 --Xmax 120000 --Ymin -120000 --Ymax 50000 --Track FEDRA  --f (your file with reconstructed tracks)
    
     Purpose: This script prepares the MC tracking data for EDER-VIANN training routines
     FYI: min and max value arguments can be changed or completely removed if all ECC data to be used for training. 
