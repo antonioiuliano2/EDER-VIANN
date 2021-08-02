@@ -23,6 +23,8 @@ Installation steps
    Pandas are used extensively in this package for routine data manipulation.
 
 7) pip3 install psutil
+   
+   This utility helps to monitor the script memory usage
 
 8) pip3 install 'h5py==2.10.0' --force-reinstall
    
