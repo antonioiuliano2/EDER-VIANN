@@ -227,7 +227,7 @@ Can only be used if there is a data available with MC vertex truth information.
 
 4)  M3_GenerateImages.py --Mode R 
     
-    Purpose: This script takes the output from the previous step and decorates the mwith track hit information that can be used to render the seed image. This script creates teraining and validation samples.
+    Purpose: This script takes the output from the previous step and decorates the track with its hit information that can be used to render the seed image. This script creates training and validation samples.
     FYI: The script will send warning, type Y. 
     The program will send HTCondor jobs and exit. 
     The jobs take about an hour.
