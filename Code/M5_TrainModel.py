@@ -59,7 +59,7 @@ print(bcolors.HEADER+"###################### For troubleshooting please contact 
 print(bcolors.HEADER+"####################################################################################################"+bcolors.ENDC)
 print(UF.TimeStamp(), bcolors.OKGREEN+"Modules Have been imported successfully..."+bcolors.ENDC)
 #This code fragment covers the Algorithm logic on the first run
-if mode=='R' and args.ModelName!='Default':
+if mode=='R' and args.ModelName=='N':
  UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M5', ['M5_M5','M5_PERFORMANCE_'], "SoftUsed == \"EDER-VIANN-M5\"")
  job=[]
  job.append(1)
@@ -82,7 +82,7 @@ if mode=='R' and args.ModelName!='Default':
  job[8]=job[9]
  UF.LogOperations(EOSsubModelDIR+'/M5_M5_JobTask.csv','StartLog',[job])
  print(bcolors.BOLD+"Please the job completion in few hours by running this script with the option C"+bcolors.ENDC)
-if mode=='R' and args.ModelName=='Default':
+elif mode=='R':
  UF.TrainCleanUp(AFS_DIR, EOS_DIR, 'M5', ['M5_M5','M5_PERFORMANCE_'], "SoftUsed == \"EDER-VIANN-M5\"")
  job=[]
  job.append(1)
