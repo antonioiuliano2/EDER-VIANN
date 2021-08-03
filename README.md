@@ -6,7 +6,7 @@ This README just serves as a very short user guide, the documentation will be wr
 
 Installation steps
 --
-1) pip3 install --upgrade pip
+1) pip3 install --upgrade pip --user
 
    This step is highly recommended in order to avoid possible problems with intallation of other packages.
 
